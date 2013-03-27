@@ -3,7 +3,7 @@
  * Container class for storing data.
  *
  * @author Andrew <andrew@localcoast.net>
- * $Id: datastore.php,v 0.1 2009/12/09 09:21:35 Andrew $
+ * $Id: DataStore.php,v 0.1 2009/12/09 09:21:35 Andrew $
  */
 class DataStore {
 
