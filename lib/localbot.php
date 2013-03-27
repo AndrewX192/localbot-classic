@@ -235,52 +235,55 @@ class localbot {
     }
 
     /**
-      Send the formatted buffer text back to
-      @return void
+     * Performs an operation "cycle".
+     *
      */
     function process() {
         $buff = & self::$buffer;
         if (is_array($this->modules)) {
-            foreach (array_keys($this->modules) as $mid) {
-                $got = null;
-		if (!is_object($this->modules[$mid])) {
-		    echo "problem with module $mid !\n";
-		    unset($this->modules[$mid]);
+            foreach (array_keys($this->modules) as $moduleId) {
+                $response = null;
+		if (!is_object($this->modules[$moduleId])) {
+		    $this->syslog("Problem with module $moduleId, removing...");
+		    unset($this->modules[$moduleId]);
 		    continue;
 		}
-		$got = $this->modules[$mid]->listen($buff);
-		// module get anything?
-		if (is_array($got)) {
+		// Runs operations for each module
+		$response = $this->modules[$moduleId]->listen($buff);
+		
+		// Ziggi/batch compatibility system
+		if (is_array($response)) {
 		    // send any server commands (quit, kick, etc) DEPRECIATED in 3.38a
-		    if (isset($got['md_send']) && is_array($got['md_send'])) {
-			foreach ($got['md_send'] as $e)
+		    if (isset($response['md_send']) && is_array($response['md_send'])) {
+			foreach ($response['md_send'] as $e)
 			    $this->send($e);
 		    }
-		    if (isset($got['pm']) && is_array($got['pm'])) {
-			foreach ($got['pm'] as $pm) {
+		    if (isset($response['pm']) && is_array($response['pm'])) {
+			foreach ($response['pm'] as $pm) {
 			    if (is_array($pm)) {
 				$to = ($pm[1] == false ? $channel : $pm[1]);
 				$this->pm($pm[0], $to);
 			    }
 			    else
-				$this->pm($pm, $got['channel']);
+				$this->pm($pm, $response['channel']);
 			}
 		    }
-		    if (isset($got['notice']) && is_array($got['notice'])) {
-			foreach ($got['notice'] as $notice) {
+		    if (isset($response['notice']) && is_array($response['notice'])) {
+			foreach ($response['notice'] as $notice) {
 			    if (is_array($notice)) {
 				$to = ($notice[1] == false ? $channel : $notice[1]);
 				$this->notice($notice[0], $to);
 			    }
-			    else
-				$this->notice($notice, $got['channel']);
+			    else {
+				$this->notice($notice, $response['channel']);
+			    }
 			}
 		    }
-		}// has return
-            }// each module
+		}
+            }
             unset($this->last_invcommand);
             unset($this->last_vcommand);
-        }// are modules
+        }
     }
 
     /**
