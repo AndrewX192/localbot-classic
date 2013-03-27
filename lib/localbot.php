@@ -46,17 +46,20 @@ class localbot {
     /**
      * Runtime configuration.
      */
-    private $runtime = array();
+    private $runtime = array(
+	'logging' => false,
+    );
     
     /**
      * The connection.
      */
     private static $connection;
     
+    /**
+     * The current message buffer.
+     */
     private static $buffer;
     public $reconnect = true; // reconnection attempts on by default
-    private static $logging = false; // logging off by default (done manually)
-    var $init = true;
     
     /**
      * Constructs a new bot with the given configuration.
@@ -72,7 +75,7 @@ class localbot {
         $this->pwds = array();
         $this->runtime['nick'] = $this->config['nick'];
         self::$connection = false;
-        self::$logging = TRUE;
+        $this->runtime['logging'] = true;
         $this->oper_file = $this->config['oper_file'];
         $this->runtime['logchan'] = $this->config['logchan'];
         
@@ -686,7 +689,7 @@ class localbot {
      * @return void
      */
     static function log($line, $file) {
-        if (!self::$logging)
+        if (!$this->runtime['logging'])
             return;
 
         $fs = new FileStorage($file, FS_APPEND);
@@ -758,7 +761,7 @@ class localbot {
         }
         $this->syslog("Loaded all modules [Memory use: " . round(memory_get_peak_usage() / 1024, 2) . " KB]");
         //Modules loaded into memory - start initializing code
-        if ($this->init) {
+        if ($this->runtime['initializing']) {
             foreach (array_keys($this->modules) as $mid) {
                 if (method_exists($this->modules[$mid], 'moduleReady'))
                     $this->modules[$mid]->moduleReady();
