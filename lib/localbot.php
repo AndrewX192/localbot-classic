@@ -264,8 +264,9 @@ class localbot {
 				$to = ($pm[1] == false ? $channel : $pm[1]);
 				$this->pm($pm[0], $to);
 			    }
-			    else
+			    else {
 				$this->pm($pm, $response['channel']);
+			    }
 			}
 		    }
 		    if (isset($response['notice']) && is_array($response['notice'])) {
