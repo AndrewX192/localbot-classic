@@ -20,8 +20,6 @@ require_once "lib/localbot.php";
 
 $start_time = microtime(true);
 $localbot = new localbot($config);
-// turn logging on (off by default) depreciated in 3.38a
-$localbot->logging(true);
 
 echo "[LocalBot: Loaded all plugins in " . round($start_time - microtime(true), 3) . " seconds.]\n";
 

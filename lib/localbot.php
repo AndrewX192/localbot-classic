@@ -43,13 +43,19 @@ class localbot {
      */
     private $config = array();
 
-    var $dat = array(); // Internal data
-    static $connection; // socket
-    static $buffer;
-    static $lb; // master data array
-    var $reconnect = true; // reconnection attempts on by default
+    /**
+     * Runtime configuration.
+     */
+    private $runtime = array();
+    
+    /**
+     * The connection.
+     */
+    private static $connection;
+    
+    private static $buffer;
+    public $reconnect = true; // reconnection attempts on by default
     private static $logging = false; // logging off by default (done manually)
-    var $logfile;
     var $init = true;
     
     /**
@@ -64,20 +70,23 @@ class localbot {
         error_reporting(E_ALL ^ E_NOTICE);
         date_default_timezone_set($this->config['time_zone']);
         $this->pwds = array();
-        $this->dat['nick'] = $this->config['nick'];
+        $this->runtime['nick'] = $this->config['nick'];
         self::$connection = false;
         self::$logging = TRUE;
         $this->oper_file = $this->config['oper_file'];
-        $this->dat['logchan'] = $this->config['logchan'];
+        $this->runtime['logchan'] = $this->config['logchan'];
+        
         if ($this->config['signal_handler'] == true) {
             pcntl_signal(SIGINT, array(self, 'handleSig'));
             pcntl_signal(SIGTERM, array(self, 'handleSig'));
             pcntl_signal(SIGHUP, array(self, 'handleSig'));
             pcntl_signal(SIGUSR1, array(self, 'handleSig'));
             pcntl_signal(SIGUSR2, array(self, 'handleSig'));
+            set_error_handler(array(self, 'handleError'));
         }
-        set_error_handler(array(self, 'handleError'));
-        $this->dataprovider = new DataProvider();
+
+
+        $this->runtimeaprovider = new DataProvider();
         $this->setBotName($this->config['nick']);
         $this->loadOpers();
         $fs = new FileStorage($this->config['pid_file'], FS_WRITE);
@@ -154,7 +163,7 @@ class localbot {
             echo("[LocalBot: Connecting to Server: " . $this->config['server'] . " on port " . $this->config['port'] . "]\n");
 	}
 
-        $this->dat['connectiontime'] = microtime(true);
+        $this->runtime['connectiontime'] = microtime(true);
         self::$connection = @fsockopen($this->config['active_server'], $this->config['port']);
         if (self::$connection == false) {
             $this->output("A connection with server " . $this->config['server'] . " could not be established using port " . $this->config['port']);
@@ -173,8 +182,8 @@ class localbot {
             if (strpos(self::$buffer['raw'], 'Nickname is already in use.') !== FALSE
                     || strpos(self::$buffer['raw'], 'Services reserved nickname: Registered nickname.') !== FALSE) {
                 $i++;
-                $this->dat['nick'] = $this->config['nick'] . "-" . $i;
-                $this->send("NICK " . $this->dat['nick']);
+                $this->runtime['nick'] = $this->config['nick'] . "-" . $i;
+                $this->send("NICK " . $this->runtime['nick']);
             } else {
                 if (strpos(localbot::$buffer['raw'], '376') !== FALSE) {
                     if (isset($this->config['nickserv_pass']) && $this->config['nickserv_pass'] != '')
@@ -182,7 +191,7 @@ class localbot {
                     if (isset($this->config['oper_username']) && isset($this->config['oper_pass'])) {
                         $this->send("OPER " . $this->config['oper_username'] . " " . $this->config['oper_pass']);
                         if (isset($this->config['user_modes']) && $this->config['user_modes'] != '')
-                            $this->send("MODE " . $this->dat['nick'] . " " . $this->config['user_modes']);
+                            $this->send("MODE " . $this->runtime['nick'] . " " . $this->config['user_modes']);
                     }
 
                     $this->join($this->config['logchan']);
@@ -377,15 +386,15 @@ class localbot {
                     $kicked = explode(' ', $buffer['kicked']);
                     $x = explode(" ", trim($buffer['kicked']), 2);
                     $reason = $x[1];
-                    if ($kicked[0] == $this->dat['nick'])
+                    if ($kicked[0] == $this->runtime['nick'])
                         unset($data[$buffer['channel']]);
-                    if ($kicked[0] == $this->dat['nick']) {
+                    if ($kicked[0] == $this->runtime['nick']) {
                         if ($reason == ':(This channel has been closed)') {
-                            $this->pm("CHANSERV:CLOSE " . $buffer['channel'], $this->dat['logchan']);
+                            $this->pm("CHANSERV:CLOSE " . $buffer['channel'], $this->runtime['logchan']);
                             return;
                         } else {
                             $this->join($buffer['channel']);
-                            $this->pm("Please do not kick " . $this->dat['nick'] . " from the channel; Instead type /msg " . $this->dat['nick'] . " Unassign " . $buffer['channel'], $buffer['channel']);
+                            $this->pm("Please do not kick " . $this->runtime['nick'] . " from the channel; Instead type /msg " . $this->runtime['nick'] . " Unassign " . $buffer['channel'], $buffer['channel']);
                         }
                     }
                     break;
@@ -393,7 +402,7 @@ class localbot {
                     $buffer['text'] = "*PARTS: " . $buffer['username'] . " ( " . $buffer['user_host'] . " )";
                     $buffer['command'] = "PART";
                     $buffer['channel'] = $buffer[2];
-                    if ($buffer['username'] == $this->dat['nick'])
+                    if ($buffer['username'] == $this->runtime['nick'])
                         unset($data[$buffer['channel']]);
                     unset($data[$buffer['channel']]['USERLIST'][$buffer['username']]);
                     break;
@@ -759,7 +768,7 @@ class localbot {
      * @return string The bot's name.
      */
     function getBotName() {
-        return self::$lb['runtime']['nick'];
+        return $this->runtime['nick'];
     }
 
     /**
@@ -767,7 +776,7 @@ class localbot {
      * @param string $name The new name of the bot.
      */
     function setBotName($name) {
-        self::$lb['runtime']['nick'] = $name;
+        $this->runtime['nick'] = $name;
     }
 
     /**
@@ -862,7 +871,7 @@ class localbot {
 
     function taint($call = false, $reason = '') {
         if (isset($call)) {
-            self::$lb['runtime']['tainted'] = true;
+            $this->runtime['tainted'] = true;
 	}
 
         $this->syslog("WARNING: One or more of your modules have tainted localbot.");
