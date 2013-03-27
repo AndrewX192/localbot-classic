@@ -85,7 +85,6 @@ class localbot {
             set_error_handler(array(self, 'handleError'));
         }
 
-
         $this->runtimeaprovider = new DataProvider();
         $this->setBotName($this->config['nick']);
         $this->loadOpers();
@@ -104,43 +103,6 @@ class localbot {
     function syslog($message, $extinfo=false) {
         $msgstr = date("[n/j/Y-H:i:s ") . "" . get_class($this) . ": " . $message . "]";
         echo $msgstr . "\n";
-    }
-
-    function isIgnored() {
-        return false;
-        foreach ($this->ignored as $ignore => $igd) {
-            if ($igd['user_host'] == self::$buffer['user_host'] && $c['ident'] == '*' && $c['username'] = '*') {
-                return true;
-	    }
-        }
-    }
-
-    function addIgnore($what, $duration, $reason) {
-        $ign = 'ig' . substr(uniqid(), -8);
-        $a = strpos($what, "!");
-        $b = strpos($what, "@");
-        $c['ident'] = substr($what, $a + 1, $b - $a - 1);
-        $c['hostname'] = substr($what, strpos($what, "@") + 1);
-        $c['username'] = substr($what, 0, strpos($what, "!"));
-        $this->ignored[$ign]['ident'] = $c['ident'];
-        $this->ignored[$ign]['hostname'] = $c['hostname'];
-        $this->ignored[$ign]['username'] = $c['username'];
-        $this->ignored[$ign]['timeset'] = time();
-        $this->ignored[$ign]['remtime'] = time() + $duration;
-        $this->ignored[$ign]['reason'] = $reason;
-    }
-
-    function removeIgnore($to) {
-        /* if(!file_exists(IGNORE_USERS_FILE))
-          {
-          $fs = new FileStorage(IGNORE_USERS_FILE,FS_WRITE);
-          $fs->write($to);
-          } */
-
-        if (is_scalar($to))
-            $to = array($to);
-        $to = $to['0'];
-        array_push($this->ignored, $to);
     }
 
     /**
@@ -278,42 +240,40 @@ class localbot {
         if (is_array($this->modules)) {
             foreach (array_keys($this->modules) as $mid) {
                 $got = null;
-                if ($this->isIgnored($this->getUsername()) == false) {
-                    if (!is_object($this->modules[$mid])) {
-                        echo "problem with module $mid !\n";
-                        unset($this->modules[$mid]);
-                        continue;
-                    }
-                    $got = $this->modules[$mid]->listen($buff);
-                    // module get anything?
-                    if (is_array($got)) {
-                        // send any server commands (quit, kick, etc) DEPRECIATED in 3.38a
-                        if (isset($got['md_send']) && is_array($got['md_send'])) {
-                            foreach ($got['md_send'] as $e)
-                                $this->send($e);
-                        }
-                        if (isset($got['pm']) && is_array($got['pm'])) {
-                            foreach ($got['pm'] as $pm) {
-                                if (is_array($pm)) {
-                                    $to = ($pm[1] == false ? $channel : $pm[1]);
-                                    $this->pm($pm[0], $to);
-                                }
-                                else
-                                    $this->pm($pm, $got['channel']);
-                            }
-                        }
-                        if (isset($got['notice']) && is_array($got['notice'])) {
-                            foreach ($got['notice'] as $notice) {
-                                if (is_array($notice)) {
-                                    $to = ($notice[1] == false ? $channel : $notice[1]);
-                                    $this->notice($notice[0], $to);
-                                }
-                                else
-                                    $this->notice($notice, $got['channel']);
-                            }
-                        }
-                    }// has return
-                }// user has access
+		if (!is_object($this->modules[$mid])) {
+		    echo "problem with module $mid !\n";
+		    unset($this->modules[$mid]);
+		    continue;
+		}
+		$got = $this->modules[$mid]->listen($buff);
+		// module get anything?
+		if (is_array($got)) {
+		    // send any server commands (quit, kick, etc) DEPRECIATED in 3.38a
+		    if (isset($got['md_send']) && is_array($got['md_send'])) {
+			foreach ($got['md_send'] as $e)
+			    $this->send($e);
+		    }
+		    if (isset($got['pm']) && is_array($got['pm'])) {
+			foreach ($got['pm'] as $pm) {
+			    if (is_array($pm)) {
+				$to = ($pm[1] == false ? $channel : $pm[1]);
+				$this->pm($pm[0], $to);
+			    }
+			    else
+				$this->pm($pm, $got['channel']);
+			}
+		    }
+		    if (isset($got['notice']) && is_array($got['notice'])) {
+			foreach ($got['notice'] as $notice) {
+			    if (is_array($notice)) {
+				$to = ($notice[1] == false ? $channel : $notice[1]);
+				$this->notice($notice[0], $to);
+			    }
+			    else
+				$this->notice($notice, $got['channel']);
+			}
+		    }
+		}// has return
             }// each module
             unset($this->last_invcommand);
             unset($this->last_vcommand);
