@@ -45,7 +45,7 @@ interface ZiggiModule {
     
     public function getArgText();
     
-    public function hasTimedEvents(;
+    public function hasTimedEvents();
     
     public function addTimedEvent($what, $timeTillNext, $channel = false);
     
