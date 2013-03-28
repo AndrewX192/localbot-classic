@@ -155,7 +155,8 @@ class localbot {
         while (!feof(self::$connection)) {
             self::$buffer['raw'] = trim(fgets(self::$connection, 4096));
 
-            self::output(date("[d/m @ H:i:s]") . "<- " . self::$buffer['raw'] . "");
+            self::output(date("[d/m @ H:i:s]") . "<- " . self::$buffer['raw'] 
+                    . "");
             if (strpos(
                     self::$buffer['raw'], 'Nickname is already in use.'
                 ) !== FALSE
@@ -233,11 +234,6 @@ class localbot {
                 continue;
             }
 
-            // act on only new text
-            //if($last != self::$buffer['raw'])
-            //{
-            //$this->output (date("[d/m @ H:i:s]")."<- ".self::$buffer['raw']);
-            //}
             // make sense of the buffer
             $this->parseBuffer();
 
@@ -245,10 +241,16 @@ class localbot {
                 if (!isset(self::$buffer['channel']))
                     self::$buffer['channel'] = "";
                 $c = str_replace(":", "", self::$buffer['channel']);
-                if (strcmp(self::$buffer['channel'], $c) == 0 && strpos(self::$buffer['channel'], ':') !== true && isset(self::$buffer['text'])) {
-                    $this->output(date("[d/m @ H:i:s]") . " [" . $c . "] " . self::$buffer['text']);
+                if (strcmp(self::$buffer['channel'], $c) == 0 
+                        && strpos(self::$buffer['channel'], ':') !== true 
+                        && isset(self::$buffer['text'])) {
+                    $this->output(date("[d/m @ H:i:s]") . " [" . $c . "] " 
+                            . self::$buffer['text']);
                 } elseif (isset(self::$buffer['text'])) {
-                    $this->output(date("[d/m @ H:i:s]") . " (" . self::$buffer['channel'] . ") <" . self::$buffer['username'] . "> " . self::$buffer['text']);
+                    $this->output(date("[d/m @ H:i:s]") . " (" 
+                            . self::$buffer['channel'] . ") <" 
+                            . self::$buffer['username'] . "> " 
+                            . self::$buffer['text']);
                 }
             }
             // now process any commands issued to the bot
