@@ -183,11 +183,9 @@ class localbot {
                             $this->send("MODE " . $this->runtime['nick'] 
                                     . " " . $this->config['user_modes']);
                         }
-                    }
-
-                    $this->join($this->config['logchan']);
-                    return true;
                 }
+                $this->join($this->config['logchan']);
+                return true;
             }
         }
     }
@@ -656,7 +654,7 @@ class localbot {
      * @param string What to say
      * @param string Where to say it.
      */
-    static function pm($message, $channel = '') {
+    public static function pm($message, $channel = '') {
         $channel = ($channel == "") ? self::$buffer['channel'] : $channel;
         
         if (is_array($message)) {
