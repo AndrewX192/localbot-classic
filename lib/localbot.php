@@ -96,7 +96,7 @@ class localbot {
         $this->syslog("LocalBot " . LB_VERSION 
                 . " Starting at (Local Console) [Core size: " 
                 . round(memory_get_peak_usage() / 1024, 2) . " KB]");
-        $this->addmodules($this->config['modules']);
+        $this->addModules($this->config['modules']);
     }
 
     /**
@@ -672,7 +672,7 @@ class localbot {
      * @param string What to say
      * @param string Where to say it.
      */
-    static function notice($message, $channel = "") {
+    public static function notice($message, $channel = "") {
         // If a channel was defined, use it, else use the channel the command came from.
         $channel = ($channel == "") ? self::$buffer['channel'] : $channel;
         if (is_array($message)) {
@@ -689,7 +689,7 @@ class localbot {
     /**
      * Disconnects the bot from the IRC server.
      */
-    static function disconnect($message) {
+    public static function disconnect($message) {
         self::send("QUIT :" . $message);
 
         $this->con->pending_quit = true;
@@ -700,7 +700,7 @@ class localbot {
      * 
      * @param string buffer line
      */
-    static function output($line) {
+    public static function output($line) {
         echo $line . "\n";
 
         // Don't print PING or PONG messages.
@@ -710,15 +710,16 @@ class localbot {
     }
 
     /**
-     * Log a line
-     * @access private
+     * Logs a line.
+     * 
      * @param string line to log
      * @param string /path/to/logfile
      * @return void
      */
-    static function log($line, $file) {
-        if (!$this->runtime['logging'])
+    public static function log($line, $file) {
+        if (!$this->runtime['logging']) {
             return;
+        }
 
         $fs = new FileStorage($file, FS_APPEND);
         $fs->write($line);
@@ -729,70 +730,71 @@ class localbot {
      *
      * @param string The command to send.
      */
-    static function send($command) {
+    public static function send($command) {
         fputs(self::$connection, $command . "\n\r");
 
         self::output(date("[d/m @ H:i:s]") . "-> " . $command);
     }
 
     /**
-      @access private
-      @param string nick
-     */
-    function registered($u) {
-        $fs = new FileStorage(REG_USERS_FILE);
-        $fs->read();
-        return in_array($u, $fs->contents);
-    }
-
-    /**
-      @access private
-      @param void
-      @return string nick or bot's name if false (used to avoid certain situations)
+     * Returns the nick or bot's name if false (used to avoid certain situations)
+     * 
+     * @return string 
      */
     function getUsername() {
         return self::$buffer['username'];
     }
 
     /**
-     *
+     * Returns the name of the bot.
+     * 
      * @return string The bot's name.
      */
-    function getBotName() {
+    public function getBotName() {
         return $this->runtime['nick'];
     }
 
     /**
-     *
+     * Sets the name of the bot.
+     * 
      * @param string $name The new name of the bot.
+     * 
+     * @return localbot
      */
     function setBotName($name) {
         $this->runtime['nick'] = $name;
+        
+        return $this;
     }
 
     /**
-      load several plugin class files
+     * load several plugin class files
       @access public
       @param array of mixed vars , module filename or array(filename,params)
       @return void
      */
-    function addmodules($A) {
-        if (!is_array($A))
+    function addModules($modules) {
+        if (!is_array($modules)) {
             return;
-        foreach ($A as $module) {
-            if (is_scalar($module))
-                $this->addmodule($module);
-            elseif (is_array($module) && isset($module[1]))
-                $this->addmodule($module[0], $module[1]);
-            else
-                $this->addmodule($module[0]);
         }
-        $this->syslog("Loaded all modules [Memory use: " . round(memory_get_peak_usage() / 1024, 2) . " KB]");
-        //Modules loaded into memory - start initializing code
+        foreach ($modules as $module) {
+            if (is_scalar($module)) {
+                $this->addmodule($module);
+            } else if (is_array($module) && isset($module[1])) {
+                $this->addmodule($module[0], $module[1]);
+            } else {
+                $this->addmodule($module[0]);
+            }
+        }
+        $this->syslog("Loaded all modules [Memory use: " 
+                . round(memory_get_peak_usage() / 1024, 2) . " KB]");
+        
+        // Modules loaded into memory - start initializing modules.
         if ($this->runtime['initializing']) {
             foreach (array_keys($this->modules) as $mid) {
-                if (method_exists($this->modules[$mid], 'moduleReady'))
+                if (method_exists($this->modules[$mid], 'moduleReady')) {
                     $this->modules[$mid]->moduleReady();
+                }
             }
         }
     }
@@ -829,34 +831,45 @@ class localbot {
         }
     }
 
-    function removeModule($module) {
-        if (!isset($this->modules[$module]))
+    /**
+     * Removes a module from LocalBot.
+     * 
+     * @param   string  $module
+     * @return  boolean
+     */
+    public function removeModule($module) {
+        if (!isset($this->modules[$module])) {
             return false;
-        if (method_exists($this->modules[$module], 'moduleUnload'))
+        }
+        if (method_exists($this->modules[$module], 'moduleUnload')) {
             $this->modules[$module]->moduleUnload();
-        unset($this->modules[$module]);
+        }
+        unset ($this->modules[$module]);
         $this->syslog("\033[0;36mPlugin '$module' removed\033[0m");
     }
 
     /**
-      finds the class name from file
-      @access private
-      @param string filename
-      @return string classname
+     * Returns a class name, given a file.
+     * 
+     * @param    string     $filename
+     * 
+     * @return   string     The name of the class.
      */
-    function getmoduleClassName($f) {
-        if (!is_readable($f))
+    private function getmoduleClassName($f) {
+        if (!is_readable($f)) {
             return false;
+        }
 
-        if (!$lines = file($f))
+        if (!$lines = file($f)) {
             return false;
+        }
 
         foreach ($lines as $t) {
             $x = explode(" ", strtolower(trim($t)));
-            if ($x[0] == 'class' && $x[2] == 'extends')
+            if ($x[0] == 'class' && $x[2] == 'extends') {
                 return $x[1];
+            }
         }
-
         return false;
     }
 
@@ -869,18 +882,25 @@ class localbot {
         $this->syslog("WARNING: You will not be able to receive support for LocalBot until you remody this issue.");
     }
 
-    function shutdown() {
+    /**
+     * Unloads all modules.
+     */
+    private function shutdown() {
         foreach (array_keys($this->modules) as $mid) {
             $this->removeModule($mid);
         }
     }
 
+    /**
+     * Exits the bot.
+     */
     function shutdownBot() {
-        foreach (array_keys($this->modules) as $mid) {
-            $this->removeModule($mid);
+        foreach (array_keys($this->modules) as $moduleId) {
+            $this->removeModule($moduleId);
         }
+
         $this->send("QUIT :Shutting down.");
-        sleep(1);
+        sleep(1); // FIXME: flush the buffer
         exit();
     }
 
