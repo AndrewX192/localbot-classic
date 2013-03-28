@@ -93,7 +93,9 @@ class localbot {
         $this->loadOpers();
         $fs = new FileStorage($this->config['pid_file'], FS_WRITE);
         $fs->write(getmypid());
-        $this->syslog("LocalBot " . LB_VERSION . " Starting at (Local Console) [Core size: " . round(memory_get_peak_usage() / 1024, 2) . " KB]");
+        $this->syslog("LocalBot " . LB_VERSION 
+                . " Starting at (Local Console) [Core size: " 
+                . round(memory_get_peak_usage() / 1024, 2) . " KB]");
         $this->addmodules($this->config['modules']);
     }
 
@@ -101,11 +103,10 @@ class localbot {
      * Send a message to LocalBot's system logger.
      *
      * @param string $message The actual message to be sent to syslog
-     * @param array $extinfo Extended information to syslog
      */
-    function syslog($message, $extinfo=false) {
-        $msgstr = date("[n/j/Y-H:i:s ") . "" . get_class($this) . ": " . $message . "]";
-        echo $msgstr . "\n";
+    function syslog($message) {
+        echo date("[n/j/Y-H:i:s ") . get_class($this) . ": " . $message . "]" 
+                  . PHP_EOL;
     }
 
     /**
@@ -114,28 +115,39 @@ class localbot {
      * @return whether or not the connection was successful.
      */
     function connect() {
-        if ($this->config['ssl'] == true && $this->config['ssl_mod'] == 'tls' || $this->config['ssl_mod'] == 'ssl') {
-            $this->config['active_server'] = $this->config['ssl_mod'] . '://' . $this->config['server'];
+        if ($this->config['ssl'] == true && $this->config['ssl_mod'] == 'tls' 
+                || $this->config['ssl_mod'] == 'ssl') {
+            $this->config['active_server'] = $this->config['ssl_mod'] 
+                    . '://' . $this->config['server'];
 	}
         else {
             $this->config['active_server'] = $this->config['server'];
 	}
         
         if (isset($this->config['network'])) {
-            echo("[LocalBot: Connecting to " . $this->config['network'] . ". Server: " . $this->config['server'] . " on port " . $this->config['port'] . "]\n");
+            echo "[LocalBot: Connecting to " . $this->config['network'] 
+                    . ". Server: " . $this->config['server'] 
+                    . " on port " . $this->config['port'] . "]\n";
 	}
         else {
-            echo("[LocalBot: Connecting to Server: " . $this->config['server'] . " on port " . $this->config['port'] . "]\n");
+            echo("[LocalBot: Connecting to Server: " 
+                    . $this->config['server'] . " on port " 
+                    . $this->config['port'] . "]\n");
 	}
 
         $this->runtime['connectiontime'] = microtime(true);
-        self::$connection = @fsockopen($this->config['active_server'], $this->config['port']);
-        if (self::$connection == false) {
-            $this->output("A connection with server " . $this->config['server'] . " could not be established using port " . $this->config['port']);
+        self::$connection = @fsockopen($this->config['active_server'],
+                                       $this->config['port']);
+        if (!self::$connection) {
+            $this->output("A connection with server " . $this->config['server'] 
+                    . " could not be established using port " 
+                    . $this->config['port']);
             return false;
         }
         echo("[LocalBot: Connected. Now logging in..]\n.");
-        $this->send("USER " . $this->config['nick'] . " " . $this->config['hostname'] . " " . $this->config['servername'] . " :" . $this->config['realname']);
+        $this->send("USER " . $this->config['nick'] . " " 
+                . $this->config['hostname'] . " " . $this->config['servername'] 
+                . " :" . $this->config['realname']);
         $this->send("NICK " . $this->config['nick']);
         //$this->send("PROTOCTL NAMESX UHNAMES");
 
@@ -144,19 +156,32 @@ class localbot {
             self::$buffer['raw'] = trim(fgets(self::$connection, 4096));
 
             self::output(date("[d/m @ H:i:s]") . "<- " . self::$buffer['raw'] . "");
-            if (strpos(self::$buffer['raw'], 'Nickname is already in use.') !== FALSE
-                    || strpos(self::$buffer['raw'], 'Services reserved nickname: Registered nickname.') !== FALSE) {
+            if (strpos(
+                    self::$buffer['raw'], 'Nickname is already in use.'
+                ) !== FALSE
+                || strpos(
+                    self::$buffer['raw'],
+                    'Services reserved nickname: Registered nickname.'
+                ) !== FALSE) {
                 $i++;
                 $this->runtime['nick'] = $this->config['nick'] . "-" . $i;
                 $this->send("NICK " . $this->runtime['nick']);
             } else {
                 if (strpos(localbot::$buffer['raw'], '376') !== FALSE) {
-                    if (isset($this->config['nickserv_pass']) && $this->config['nickserv_pass'] != '')
-                        $this->send("PRIVMSG NickServ :IDENTIFY " . $this->config['nickserv_pass']);
-                    if (isset($this->config['oper_username']) && isset($this->config['oper_pass'])) {
-                        $this->send("OPER " . $this->config['oper_username'] . " " . $this->config['oper_pass']);
-                        if (isset($this->config['user_modes']) && $this->config['user_modes'] != '')
-                            $this->send("MODE " . $this->runtime['nick'] . " " . $this->config['user_modes']);
+                    if (isset($this->config['nickserv_pass']) 
+                            && $this->config['nickserv_pass'] != '')
+                        $this->send("PRIVMSG NickServ :IDENTIFY " 
+                                . $this->config['nickserv_pass']);
+                    if (isset($this->config['oper_username']) 
+                            && isset($this->config['oper_pass'])) {
+                        $this->send("OPER " . $this->config['oper_username'] 
+                                . " " . $this->config['oper_pass']);
+                    }
+                        if (isset($this->config['user_modes']) 
+                                && $this->config['user_modes'] != '') {
+                            $this->send("MODE " . $this->runtime['nick'] 
+                                    . " " . $this->config['user_modes']);
+                        }
                     }
 
                     $this->join($this->config['logchan']);
@@ -242,7 +267,6 @@ class localbot {
         $buff = & self::$buffer;
         if (is_array($this->modules)) {
             foreach (array_keys($this->modules) as $moduleId) {
-                $response = null;
 		if (!is_object($this->modules[$moduleId])) {
 		    $this->syslog("Problem with module $moduleId, removing...");
 		    unset($this->modules[$moduleId]);
