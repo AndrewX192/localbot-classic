@@ -18,18 +18,21 @@ define('PRIVMSG',   'PRIVMSG');
 
 abstract class module {
     /**
-      localbot calls this each incoming line
-      you should probably leave it alone,
-      @access private
-      @return array of good stuff localbot likes
+     * Called when a module should process an event.
+     * 
+     * @param  array $buffer
+     * 
+     * @return array
      */
-    function listen($to_buffer = false) {
-        $this->md_buffer = $to_buffer;
+    function listen($buffer = array()) {
+        $this->md_buffer = $buffer;
         $this->md_ret = false;
-        if ($this->checkConfig() == false)
+
+        if (!$this->checkConfig()) {
             return;
+        }
         $this->checkTimedEvents();
-        $this->current_hook = $this->generateHooks();
+        $this->current_hook = $this->_generateHook();
         $this->processHooks();
         $this->processCommands();
         $this->runMethods();
@@ -448,29 +451,46 @@ abstract class module {
         $this->deleteHook($name);
     }
 
-    function generateHooks() {
-        if (!$this->md_buffer[0] || !$this->md_buffer[1])
+    /**
+     * Generates the hook name to match against.
+     * 
+     * @return string|boolean
+     */
+    protected function _generateHook() {
+        if (!$this->md_buffer[0] || !$this->md_buffer[1]) {
             return;
-        if ($this->md_buffer[1] == 'PRIVMSG' && strpos($this->md_buffer[2], '#') === false)
+        }
+        
+        if ($this->md_buffer[1] == 'PRIVMSG' 
+                && strpos($this->md_buffer[2], '#') === false) {
             return 'privmsg';
-        if ($this->md_buffer[1] == 'PRIVMSG' && strpos($this->md_buffer[2], '#') !== false)
+        }
+        if ($this->md_buffer[1] == 'PRIVMSG' 
+                && strpos($this->md_buffer[2], '#') !== false) {
             return 'chanmsg';
-        if ($this->md_buffer[1] == 'NOTICE' && strpos($this->md_buffer[2], '#') === false)
+        }
+        if ($this->md_buffer[1] == 'NOTICE' 
+                && strpos($this->md_buffer[2], '#') === false) {
             $hook = 'notice';
-        if ($this->md_buffer[1] == 'NOTICE' && strpos($this->md_buffer[2], '#') !== false)
+        }
+        if ($this->md_buffer[1] == 'NOTICE' 
+                && strpos($this->md_buffer[2], '#') !== false) {
             $hook = 'channotice';
-        if ($this->md_buffer[1] == 'JOIN')
+        }
+        if ($this->md_buffer[1] == 'JOIN') {
             $hook = 'CHAN_JOIN';
-        if ($this->md_buffer[1] == 'PART')
+        } else if ($this->md_buffer[1] == 'PART') {
             $hook = 'CHAN_JOIN';
-        if ($this->md_buffer[1] == 'QUIT')
+        } else if ($this->md_buffer[1] == 'QUIT') {
             $hook = 'USER_QUIT';
-        if ($this->md_buffer[1] == 'NICK')
+        } else if ($this->md_buffer[1] == 'NICK') {
             $hook = 'nick';
-        if (isset($hook))
+        }
+        
+        if (isset($hook)) {
             return $hook;
-        else
-            return false;
+        }
+        return false;
     }
 
     function processHooks() {
@@ -496,6 +516,14 @@ abstract class module {
         $commands[$cls][$name] = array($name, $access, $type, $call);
     }
 
+    /**
+     * Processes LocalBot hook based commands.
+     * 
+     * @global type $commands
+     * @global type $localbot
+     * 
+     * @return void
+     */
     function processCommands() {
         global $commands, $localbot;
         if (isset($this->md_buffer[1]) && $this->md_buffer[1] == 'PRIVMSG') {
@@ -507,7 +535,7 @@ abstract class module {
             if (is_array($a)) {
                 $command = strtoupper($a[0]);
             } else {
-                $command=strtoupper($a);
+                $command = strtoupper($a);
             }
             foreach ($commands as $cmd => $cm) {
                 if (isset($cm[$command])) {
@@ -518,13 +546,15 @@ abstract class module {
             $curc = get_class($this);
             // Channel Commands
             if (strpos($this->md_buffer[2], '#') !== false && isset($command[0])) {
-                if ($command[0] == '!')
+                if ($command[0] == '!') {
                     $command = substr($command, 1);
-                else
+                } else {
                     return;
+                }
                 $command = '()' . $command;
-                if (!isset($commands[$t][$command]))
+                if (!isset($commands[$t][$command])) {
                     return;
+                }
                 $u = $this->getUser();
                 if (!isset($localbot->flood[$u]['firstvalidcmdtime']))
                     $localbot->flood[$u]['firstvalidcmdtime'] = time();
@@ -551,7 +581,7 @@ abstract class module {
                 }
             } else {
                 $f = $commands[$curc][$command][3];
-                if ($f != '') {
+                if (!empty($f)) {
                     if ($this->userHasPriv($commands[$curc][$command][1]) || $commands[$curc][$command][1] == "UA_NONE") {
                         eval(" \$this->$f();");
                         $localbot->last_vcommand = true;
