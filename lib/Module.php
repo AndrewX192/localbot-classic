@@ -170,33 +170,6 @@ abstract class module {
         localbot::send($message);
     }
 
-    function ignore($what, $duration=false, $reason=false) {
-        global $localbot;
-        if (!isset($reason))
-            $reason = "User has been ignored from " . $this->getBotName();
-        if (!isset($duration))
-            $duration = 86400;
-        $localbot->addIgnore($what, $duration, $reason);
-    }
-
-    // DEPRECIATED In 3.38b
-
-    function setLogChan($t) {
-        global $localbot;
-        //$localbot->dat['logchan'] =$t;
-    }
-
-    /** @todo REWRITE In 3.38b * */
-    function getLogChan() {
-        global $localbot;
-        return($localbot->dat['logchan']);
-    }
-
-    function logChan($msg) {
-        global $localbot;
-        localbot::pm($msg, $localbot->dat['logchan']);
-    }
-
     /**
       @return string Nick of the user that said something
      */
@@ -798,6 +771,33 @@ abstract class module {
         array_push($this->md_ret[$type], $data);
     }
 
+    function ignore($what, $duration=false, $reason=false) {
+        global $localbot;
+        if (!isset($reason))
+            $reason = "User has been ignored from " . $this->getBotName();
+        if (!isset($duration))
+            $duration = 86400;
+        $localbot->addIgnore($what, $duration, $reason);
+    }
+
+    // DEPRECIATED In 3.38b
+
+    function setLogChan($t) {
+        global $localbot;
+        //$localbot->dat['logchan'] =$t;
+    }
+
+    /** @todo REWRITE In 3.38b * */
+    function getLogChan() {
+        global $localbot;
+        return($localbot->dat['logchan']);
+    }
+
+    function logChan($msg) {
+        global $localbot;
+        localbot::pm($msg, $localbot->dat['logchan']);
+    }
+    
     function m_finish() {
         return $this->md_ret;
     }
