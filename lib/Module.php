@@ -40,12 +40,15 @@ abstract class module {
     function checkConfig() {
         if (!isset($this->config) && $this->noconfig != 'NONE') {
             if ($this->noconfig == 'NO1') {
-                $this->syslog("\033[0;31mNo suitable configuration could be found for the module; will continue with defaults.\033[0m", get_class($this));
+                $this->syslog("\033[0;31mNo suitable configuration could be " 
+                        . "found for the module; will continue with defaults."
+                        . "\033[0m", get_class($this));
                 $this->noconfig = 'NONE';
                 return;
             }
             $this->noconfig = 'NO1';
-            $this->syslog("\033[0;31mConfiguration not yet ready; will try late-startup.\033[0m", get_class($this));
+            $this->syslog("\033[0;31mConfiguration not yet ready; " 
+                    . " will try late-startup.\033[0m", get_class($this));
             return false;
         }
         return true;
@@ -285,19 +288,24 @@ abstract class module {
     }
 
     /**
-      @return array All of the user's input split on spaces
+     * Returns all the user's input (split on spaces).
+     * 
+     * @return array
      */
     function getArgs() {
-        $t = $this->getInput();
-        return explode(" ", trim($t));
+        return explode(' ', trim($this->getInput()));
     }
 
     /**
-      @return string IRC Command , PRIVMSG, MODE, JOIN, et al.
+     * Returns the IRC command.
+     * 
+     * @return string|null
      */
     function getCommand() {
-        if (isset($this->md_buffer['command']))
+        if (isset($this->md_buffer['command'])) {
             return $this->md_buffer['command'];
+        }
+        
         return null;
     }
 
@@ -431,17 +439,40 @@ abstract class module {
             return "-1";
     }
 
-    /*     * LocalBot's Hook system* */
-
-    function addHook($name, $call) {
+    /**
+     * Adds a hook.
+     *  
+     * @param string $name      The name of the hook.
+     * 
+     * @param array  $callback  The name of the callback.
+     */
+    function addHook($name, $callback) {
         global $hooks;
-        $cls = get_class($this);
-        $hooks[$cls][$name] = array($cls, $call);
+        $classname = get_class($this);
+        $hooks[$classname][$name] = array($classname, $callback);
     }
 
-    function delHook($name, $data) {
+    /**
+     * Removes a registered hook.
+     * 
+     * @param  string $name
+     * 
+     * @return whether or not the hook was registered.
+     */
+    function deleteHook($name) {
         global $hooks;
-        unset($hooks[$name]);
+        
+        if (!isset($hooks[$name])) {
+            return false;
+        }
+        
+        unset ($hooks[$name]);
+        return true;
+    }
+
+    // DEPRECATED
+    function delHook($name, $data) {
+        $this->deleteHook($name);
     }
 
     function generateHooks() {
@@ -495,17 +526,20 @@ abstract class module {
     function processCommands() {
         global $commands, $localbot;
         if (isset($this->md_buffer[1]) && $this->md_buffer[1] == 'PRIVMSG') {
-            $a = ( $this->md_buffer['text'] ? $this->md_buffer['text'] : '' );
-            if (isset($this->md_buffer['event']))
+            $a = $this->md_buffer['text'] ? $this->md_buffer['text'] : '';
+            if (isset($this->md_buffer['event'])) {
                 $a = ( $this->md_buffer['event'] ? $this->md_buffer['event'] : $a );
+            }
             $a = explode(" ", $a);
-            if (is_array($a))
+            if (is_array($a)) {
                 $command = strtoupper($a[0]);
-            else
+            } else {
                 $command=strtoupper($a);
+            }
             foreach ($commands as $cmd => $cm) {
-                if (isset($cm[$command]))
+                if (isset($cm[$command])) {
                     $localbot->last_vcommand = true;
+                }
             }
 
             $curc = get_class($this);
