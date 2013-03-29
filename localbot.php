@@ -24,14 +24,14 @@ $localbot = new LocalBot($config);
 echo "[LocalBot: Loaded all plugins in " . round($start_time - microtime(true), 3) . " seconds.]\n";
 
 
-while($localbot->reconnect)
+while($localbot->shouldReconnect())
 {
   if (!$localbot->connect()) {
     die("LocalBot was unable to connect, exiting.\n");
   }
   sleep(3);
   $localbot->listen(); // run this as long as were connected
-  if(!$localbot->reconnect)
+  if(!$localbot->shouldReconnect())
   {
     die("Exiting.\n");
   }

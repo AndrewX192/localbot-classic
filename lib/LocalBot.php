@@ -47,7 +47,8 @@ class LocalBot {
      * Runtime configuration.
      */
     private $runtime = array(
-	'logging' => false,
+	'logging'   => false,
+        'reconnect' => false,
     );
     
     /**
@@ -59,7 +60,6 @@ class LocalBot {
      * The current message buffer.
      */
     private static $buffer;
-    public $reconnect = true; // reconnection attempts on by default
     
     /**
      * Constructs a new bot with the given configuration.
@@ -109,6 +109,15 @@ class LocalBot {
                   . PHP_EOL;
     }
 
+    /**
+     * Returns whether or not the bot should reconnect.
+     * 
+     * @return bool
+     */
+    public function shouldReconnect() {
+        return $this->runtime['reconnect'];
+    }
+    
     /**
      * Connects to the server using the internal configuration.
      *
