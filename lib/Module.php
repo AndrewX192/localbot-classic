@@ -125,13 +125,12 @@ abstract class module {
     }
 
     /**
-     * Send a IRC Notice to a given target.
+     * Send an IRC Notice to a given target.
      * 
      * @param   string  $what
      * @param   string $to
-     * @param type $type
      */
-    function notice($what, $to = false, $type = false) {
+    function notice($what, $to = false) {
         if (!$to) {
             $to = $this->getUser();
         }
@@ -139,9 +138,17 @@ abstract class module {
         localbot::notice($what, $to);
     }
 
-    function noticeAction($what, $to = false, $type = false) {
-        if (!$to)
+    /**
+     * Sends an IRC Notice action to a given target.
+     * 
+     * @param   string  $what
+     * @param   string $to
+     */
+    function noticeAction($what, $to = false) {
+        if (!$to) {
             $to = $this->getUser();
+        }
+
         localbot::notice("\001ACTION " . $what . "\001", $to);
     }
 
