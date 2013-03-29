@@ -810,4 +810,3 @@ abstract class module {
         return true;
     }
 }
-?>
