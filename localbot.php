@@ -16,10 +16,10 @@ if (!file_exists('lib/localbot.php')) {
   die("The file 'localbot.php' in lib/ is missing, please check your installation.");
 }
 
-require_once "lib/localbot.php";
+require_once "lib/LocalBot.php";
 
 $start_time = microtime(true);
-$localbot = new localbot($config);
+$localbot = new LocalBot($config);
 
 echo "[LocalBot: Loaded all plugins in " . round($start_time - microtime(true), 3) . " seconds.]\n";
 

@@ -32,7 +32,7 @@ require_once(LB_LIB_PATH . 'DataStore.php');
 require_once(LB_LIB_PATH . 'FileStorage.class.php');
 require_once(LB_LIB_PATH . 'DataProvider.class.php');
 
-class localbot {
+class LocalBot {
     /**
      * An array of modules.
      */
@@ -168,7 +168,7 @@ class localbot {
                 $this->runtime['nick'] = $this->config['nick'] . "-" . $i;
                 $this->send("NICK " . $this->runtime['nick']);
             } else {
-                if (strpos(localbot::$buffer['raw'], '376') !== FALSE) {
+                if (strpos(LocalBot::$buffer['raw'], '376') !== FALSE) {
                     if (isset($this->config['nickserv_pass']) 
                             && $this->config['nickserv_pass'] != '')
                         $this->send("PRIVMSG NickServ :IDENTIFY " 
@@ -759,7 +759,7 @@ class localbot {
      * 
      * @param string $name The new name of the bot.
      * 
-     * @return localbot
+     * @return LocalBot
      */
     function setBotName($name) {
         $this->runtime['nick'] = $name;

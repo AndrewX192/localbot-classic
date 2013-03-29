@@ -84,7 +84,7 @@ abstract class module {
      * @param string $name The name to give the bot
      */
     function setBotName($name) {
-        localbot::setBotName($name);
+        LocalBot::setBotName($name);
     }
 
     /**
@@ -92,7 +92,7 @@ abstract class module {
      * @return string The bot's name.
      */
     function getBotName() {
-        return localbot::getBotName();
+        return LocalBot::getBotName();
     }
 
     function isEmpty() {
@@ -110,7 +110,7 @@ abstract class module {
             $to = $this->getOrigin();
 	}
         
-        localbot::pm($message, $to);
+        LocalBot::pm($message, $to);
     }
     
     /**
@@ -124,7 +124,7 @@ abstract class module {
             $to = $this->getOrigin();
         }
 
-        localbot::pm("\001ACTION " . $what . "\001", $to);
+        LocalBot::pm("\001ACTION " . $what . "\001", $to);
     }
 
     /**
@@ -138,7 +138,7 @@ abstract class module {
             $to = $this->getUser();
         }
 
-        localbot::notice($what, $to);
+        LocalBot::notice($what, $to);
     }
 
     /**
@@ -152,7 +152,7 @@ abstract class module {
             $to = $this->getUser();
         }
 
-        localbot::notice("\001ACTION " . $what . "\001", $to);
+        LocalBot::notice("\001ACTION " . $what . "\001", $to);
     }
 
     /**
@@ -161,7 +161,7 @@ abstract class module {
      * @param string $channel the channel to join
      */
     function join($channel) {
-        localbot::join($channel);
+        LocalBot::join($channel);
     }
 
     /**
@@ -170,7 +170,7 @@ abstract class module {
      * @param   string  $message    What to send.
      */
     function send($message) {
-        localbot::send($message);
+        LocalBot::send($message);
     }
 
     /**
@@ -825,7 +825,7 @@ abstract class module {
 
     function logChan($msg) {
         global $localbot;
-        localbot::pm($msg, $localbot->dat['logchan']);
+        LocalBot::pm($msg, $localbot->dat['logchan']);
     }
     
     function m_finish() {
