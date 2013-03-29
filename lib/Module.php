@@ -102,36 +102,21 @@ abstract class module {
      * @param string	What to say.
      * @param string 	a nick or channel. When false, responds to where to request came from.
      */
-    function pm($message, $to = false) {
+    function pm($message, $to = null) {
         if (!$to) {
             $to = $this->getOrigin();
 	}
         
         localbot::pm($message, $to);
-
-        /* if(is_array($what))
-          {
-          foreach($what as $msg)
-          {
-          if(is_array($msg))
-          $this->pm($msg[0],$msg[1]);
-          else
-          $this->addReturn('pm',$msg);
-          }
-          }
-          elseif($what!=false && gettype($what)!='object')
-          {
-          $this->addReturn('pm',array($what,$to));
-          } */
     }
     
     /**
-     * Sends a IRC action message to a given user.
+     * Sends a IRC action message to a given target.
      *
      * @param string	What to say.
      * @param string 	a nick or channel. When false, responds to where to request came from.
      */
-    function pmAction($what, $to = false) {
+    function pmAction($what, $to = null) {
         if (!$to) {
             $to = $this->getOrigin();
         }
@@ -139,6 +124,13 @@ abstract class module {
         localbot::pm("\001ACTION " . $what . "\001", $to);
     }
 
+    /**
+     * Send a IRC Notice to a given target.
+     * 
+     * @param   string  $what
+     * @param   string $to
+     * @param type $type
+     */
     function notice($what, $to = false, $type = false) {
         if (!$to) {
             $to = $this->getUser();
@@ -163,8 +155,9 @@ abstract class module {
     }
 
     /**
-      send something to the server rather than the channel
-      @param string Something to send
+     * Sends a RAW IRC message to the server.
+     * 
+     * @param   string  $message    What to send.
      */
     function send($message) {
         localbot::send($message);
