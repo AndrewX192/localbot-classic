@@ -31,6 +31,8 @@ require_once(LB_LIB_PATH . 'Module.php');
 require_once(LB_LIB_PATH . 'DataStore.php');
 require_once(LB_LIB_PATH . 'FileStorage.class.php');
 
+set_include_path(get_include_path() . PATH_SEPARATOR . LB_LIB_PATH);
+
 class LocalBot {
     /**
      * An array of modules.
