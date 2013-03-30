@@ -8,7 +8,9 @@ class helpsys extends module {
     /**
      * Registers hooks for the commands.
      */
-    function __construct() {
+    function __construct($localbot) {
+        parent::__construct($localbot);
+
         $this->addCommand("HELP", AC_NONE, FANTASY, 'helpsys_help');
         $this->addCommand("HELP", UA_NONE, PRIVMSG, 'helpsys_help');
     }

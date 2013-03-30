@@ -831,7 +831,7 @@ class LocalBot {
         $f = MD_SRC_PATH . $z;
         if ($cls = $this->getmoduleClassName($f)) {
             require_once($f);
-            eval(" \$a = new $cls();");
+            eval(" \$a = new $cls(\$this);");
             $this->modules[$cls] = $a;
             $this->modules[$cls]->setLogChan($this->config['logchan']);
             if ($params['cron']) {

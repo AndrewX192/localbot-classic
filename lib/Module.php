@@ -18,6 +18,22 @@ define('PRIVMSG',   'PRIVMSG');
 
 abstract class module {
     /**
+     * Contains an instance of LocalBot.
+     * 
+     * @var LocalBot 
+     */
+    private $localbot;
+    
+    /**
+     * Constructs a module.s
+     * 
+     * @param LocalBot $localbot
+     */
+    public function __construct(LocalBot $localbot) {
+        $this->localbot = $localbot;
+    }
+
+    /**
      * Called when a module should process an event.
      * 
      * @param  array $buffer
@@ -80,11 +96,11 @@ abstract class module {
     }
 
     /**
-     * Wrapper class for LocalBot::setBotName()
+     * Wrapper class for LocalBot->setBotName()
      * @param string $name The name to give the bot
      */
     function setBotName($name) {
-        LocalBot::setBotName($name);
+        $this->setBotName($name);
     }
 
     /**
@@ -92,7 +108,7 @@ abstract class module {
      * @return string The bot's name.
      */
     function getBotName() {
-        return LocalBot::getBotName();
+        return $this->localbot->getBotName();
     }
 
     function isEmpty() {
@@ -110,7 +126,7 @@ abstract class module {
             $to = $this->getOrigin();
 	}
         
-        LocalBot::pm($message, $to);
+        $this->pm($message, $to);
     }
     
     /**
@@ -124,7 +140,7 @@ abstract class module {
             $to = $this->getOrigin();
         }
 
-        LocalBot::pm("\001ACTION " . $what . "\001", $to);
+        $this->pm("\001ACTION " . $what . "\001", $to);
     }
 
     /**
@@ -138,7 +154,7 @@ abstract class module {
             $to = $this->getUser();
         }
 
-        LocalBot::notice($what, $to);
+        $this->localbot->notice($what, $to);
     }
 
     /**
@@ -152,7 +168,7 @@ abstract class module {
             $to = $this->getUser();
         }
 
-        LocalBot::notice("\001ACTION " . $what . "\001", $to);
+        $this->notice("\001ACTION " . $what . "\001", $to);
     }
 
     /**
@@ -161,7 +177,7 @@ abstract class module {
      * @param string $channel the channel to join
      */
     function join($channel) {
-        LocalBot::join($channel);
+        $this->join($channel);
     }
 
     /**
@@ -170,7 +186,7 @@ abstract class module {
      * @param   string  $message    What to send.
      */
     function send($message) {
-        LocalBot::send($message);
+        $this->localbot->send($message);
     }
 
     /**
