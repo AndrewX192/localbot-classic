@@ -684,12 +684,10 @@ class LocalBot {
         $channel = ($channel == "") ? $this->buffer['channel'] : $channel;
         if (is_array($message)) {
             foreach ($message as $msg) {
-                $pm = 'NOTICE ' . $channel . ' :' . $msg;
-                $this->send($pm);
+                $this->send('NOTICE ' . $channel . ' :' . $msg);
             }
         } else {
-            $pm = 'NOTICE ' . $channel . ' :' . $message;
-            $this->send($pm);
+            $this->send('NOTICE ' . $channel . ' :' . $message);
         }
     }
 
