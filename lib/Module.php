@@ -683,31 +683,31 @@ abstract class module {
     }
 
     function getOpers() {
-        global $localbot;
-        return $localbot->opers;
+        return $this->localbot->opers;
     }
 
     function userHasPriv($priv, $user=false) {
-        global $localbot;
-        if (!$user)
+        if (!$user) {
             $user = $this->md_buffer['username'];
-        if ($this->userIsId() == false)
+        }
+        if ($this->userIsId() == false) {
             return false;
-        return(strpos($localbot->opers[$user]['privs'], $priv) !== false );
+        }
+        return(strpos($this->localbot->opers[$user]['privs'], $priv) !== false );
     }
 
     function userIsId($user=false) {
-        global $localbot;
-        if (!$user)
+        if (!$user) {
             $user = $this->md_buffer['username'];
-        return $localbot->opers[$user]['identified'];
+        }
+        return $this->localbot->opers[$user]['identified'];
     }
 
     function operIdentify($user=false) {
-        global $localbot;
-        if (!$user)
+        if (!$user) {
             $user = $this->md_buffer['username'];
-        $localbot->opers[$user]['identified'] = true;
+        }
+        $this->localbot->opers[$user]['identified'] = true;
     }
 
     /*     * LocalBot's Help system* */
