@@ -265,8 +265,9 @@ abstract class module {
     }
 
     /**
-     * Was the message a highlight of the bot?
-      @return string The $i-nth argument, separated by spaces
+     * Was the incomming message to the bot? (was my nick mentioned?)
+     * 
+     * @return boolean
      */
     function isHighlight() {
         $a = ( $this->md_buffer['text'] ? $this->md_buffer['text'] : '' );
@@ -274,9 +275,11 @@ abstract class module {
 
         $a = explode(" ", $a);
         if (is_array($a)) {
-            return(strtolower($a[0]) == $this->botName || strtolower($this->md_buffer[0]) == $this->botName . ':');
+            return strtolower($a[0]) == $this->getBotName() 
+                    || strtolower($this->md_buffer[0]) == $this->getBotName() . ':';
         }
-        return (strtolower($this->md_buffer[0]) == $this->botName || strtolower($this->md_buffer[0]) == $this->botName . ':');
+        return strtolower($this->md_buffer[0]) == $this->getBotName() 
+                || strtolower($this->md_buffer[0]) == $this->getBotName() . ':';
     }
 
     /**
