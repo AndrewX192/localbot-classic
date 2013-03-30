@@ -4,10 +4,6 @@ require_once 'ziggi.php';
 
 class example extends ziggi
 {
-	function example()
-	{
-	}
-	
 	function parseBuffer()
 	{
 		if($this->getArg(0) == 'botzilla')
