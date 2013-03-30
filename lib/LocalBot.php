@@ -46,8 +46,9 @@ class LocalBot {
      * Runtime configuration.
      */
     private $runtime = array(
-	'logging'   => false,
-        'reconnect' => false,
+	'logging'      => false,
+        'reconnect'    => false,
+        'initializing' => true,
     );
     
     /**
@@ -804,6 +805,8 @@ class LocalBot {
                 }
             }
         }
+        
+        $this->runtime['initializing'] = false;
     }
 
     /**
