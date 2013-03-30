@@ -27,7 +27,7 @@ echo "[LocalBot: Loaded all plugins in " . round(
         microtime(true) - $start_time, 3) . " seconds.]" . PHP_EOL;
 
 
-while ($localbot->shouldReconnect()) {
+while (true) {
     if (!$localbot->connect()) {
         die("LocalBot was unable to connect, exiting." . PHP_EOL);
     }

@@ -47,7 +47,7 @@ class LocalBot {
      */
     private $runtime = array(
 	'logging'      => false,
-        'reconnect'    => false,
+        'reconnect'    => true,
         'initializing' => true,
     );
     
