@@ -13,8 +13,8 @@ if (!file_exists('config.php')) {
 $config = array();
 require_once "config.php";
 
-if (!file_exists('lib/localbot.php')) {
-    die("The file 'localbot.php' in lib/ is missing, please check your " 
+if (!file_exists('lib/LocalBot.php')) {
+    die("The file 'LocalBot.php' in lib/ is missing, please check your " 
           . "installation."  . PHP_EOL);
 }
 
