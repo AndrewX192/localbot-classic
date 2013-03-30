@@ -782,23 +782,39 @@ abstract class module {
         }
     }
 
+    /**
+     * Adds a cronjob from an array.
+     * 
+     * @param array $cron
+     */
     function addCron($cron) {
-        if (!is_array($this->crons))
+        if (!is_array($this->crons)) {
             $this->crons = array($cron);
-        else
+        }
+        else {
             array_push($this->crons, $cron);
+        }
 
         $this->addTimedEvent($cron['cmd'], $cron['interval'], $cron['channel']);
     }
 
+    /**
+     * Returns a cron matching a particular command.
+     * 
+     * @param string $what
+     * 
+     * @return array|boolean
+     */
     function getCron($what) {
-        if (!isset($this->crons) || !is_array($this->crons))
+        if (!isset($this->crons) || !is_array($this->crons)) {
             return false;
+        }
 
-        foreach ($this->crons as $c)
-            if ($c['cmd'] == $what)
-                return $c;
-
+        foreach ($this->crons as $job) {
+            if ($job['cmd'] == $what) {
+                return $job;
+            }
+        }
         return false;
     }
 
