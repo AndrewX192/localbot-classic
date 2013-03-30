@@ -261,9 +261,6 @@ class LocalBot {
             }
             // now process any commands issued to the bot
             $this->process();
-            if (isset(self::$buffer['raw'])) {
-                $last = self::$buffer['raw'];
-	    }
         }
     }
 
