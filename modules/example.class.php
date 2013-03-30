@@ -1,7 +1,10 @@
-<?
-class example_class extends ziggi
+<?php
+
+require_once 'ziggi.php';
+
+class example extends ziggi
 {
-	function example_class()
+	function example()
 	{
 	}
 	
