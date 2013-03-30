@@ -54,7 +54,7 @@ class LocalBot {
     /**
      * The connection.
      */
-    private static $connection;
+    private $connection;
     
     /**
      * The current message buffer.
@@ -74,7 +74,7 @@ class LocalBot {
         date_default_timezone_set($this->config['time_zone']);
         $this->pwds = array();
         $this->runtime['nick'] = $this->config['nick'];
-        self::$connection = false;
+        $this->connection = false;
         $this->runtime['logging'] = true;
         $this->oper_file = $this->config['oper_file'];
         $this->runtime['logchan'] = $this->config['logchan'];
@@ -85,7 +85,7 @@ class LocalBot {
             pcntl_signal(SIGHUP, array(self, 'handleSig'));
             pcntl_signal(SIGUSR1, array(self, 'handleSig'));
             pcntl_signal(SIGUSR2, array(self, 'handleSig'));
-            set_error_handler(array(self, 'handleError'));
+            set_error_handler(array($this, 'handleError'));
         }
 
         $this->setBotName($this->config['nick']);
@@ -144,9 +144,9 @@ class LocalBot {
 	}
 
         $this->runtime['connectiontime'] = microtime(true);
-        self::$connection = @fsockopen($this->config['active_server'],
+        $this->connection = @fsockopen($this->config['active_server'],
                                        $this->config['port']);
-        if (!self::$connection) {
+        if (!$this->connection) {
             $this->output("A connection with server " . $this->config['server'] 
                     . " could not be established using port " 
                     . $this->config['port']);
@@ -160,8 +160,8 @@ class LocalBot {
         //$this->send("PROTOCTL NAMESX UHNAMES");
 
         $i = 0;
-        while (!feof(self::$connection)) {
-            self::$buffer['raw'] = trim(fgets(self::$connection, 4096));
+        while (!feof($this->connection)) {
+            self::$buffer['raw'] = trim(fgets($this->connection, 4096));
 
             self::output(date("[d/m @ H:i:s]") . "<- " . self::$buffer['raw'] 
                     . "");
@@ -221,10 +221,10 @@ class LocalBot {
             $this->config['kernel_tick'] = (11 * 1000);
 	}
 	
-        socket_set_blocking(self::$connection, false);
-        while (!feof(self::$connection)) {
+        socket_set_blocking($this->connection, false);
+        while (!feof($this->connection)) {
             usleep($this->config['kernel_tick']);
-            self::$buffer['raw'] = trim(fgets(self::$connection, 4096));
+            self::$buffer['raw'] = trim(fgets($this->connection, 4096));
 
             // If all is quiet, proceed once per second. (letting modules do timed events)
             if (strlen(self::$buffer['raw']) <= 0) {
@@ -662,7 +662,7 @@ class LocalBot {
      * @param string What to say
      * @param string Where to say it.
      */
-    public static function pm($message, $channel = '') {
+    public function pm($message, $channel = '') {
         $channel = ($channel == "") ? self::$buffer['channel'] : $channel;
         
         if (is_array($message)) {
@@ -680,7 +680,7 @@ class LocalBot {
      * @param string What to say
      * @param string Where to say it.
      */
-    public static function notice($message, $channel = "") {
+    public function notice($message, $channel = "") {
         // If a channel was defined, use it, else use the channel the command came from.
         $channel = ($channel == "") ? self::$buffer['channel'] : $channel;
         if (is_array($message)) {
@@ -690,15 +690,15 @@ class LocalBot {
             }
         } else {
             $pm = 'NOTICE ' . $channel . ' :' . $message;
-            self::send($pm);
+            $this->send($pm);
         }
     }
 
     /**
      * Disconnects the bot from the IRC server.
      */
-    public static function disconnect($message) {
-        self::send("QUIT :" . $message);
+    public function disconnect($message) {
+        $this->send("QUIT :" . $message);
 
         $this->con->pending_quit = true;
     }
@@ -708,7 +708,7 @@ class LocalBot {
      * 
      * @param string buffer line
      */
-    public static function output($line) {
+    public function output($line) {
         echo $line . "\n";
 
         // Don't print PING or PONG messages.
@@ -724,9 +724,16 @@ class LocalBot {
      * @param string /path/to/logfile
      * @return void
      */
-    public static function log($line, $file) {
+    public function log($line, $file) {
         if (!$this->runtime['logging']) {
             return;
+        }
+
+        // FileStorage is messy, work around it.
+        if (!file_exists($file)) {
+            $this->runtime['logging'] = false;
+            
+            $this->output("File " + $file + " missing, logging disabled.");
         }
 
         $fs = new FileStorage($file, FS_APPEND);
@@ -738,8 +745,8 @@ class LocalBot {
      *
      * @param string The command to send.
      */
-    public static function send($command) {
-        fputs(self::$connection, $command . "\n\r");
+    public function send($command) {
+        fputs($this->connection, $command . "\n\r");
 
         self::output(date("[d/m @ H:i:s]") . "-> " . $command);
     }
