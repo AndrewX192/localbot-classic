@@ -669,7 +669,7 @@ class LocalBot {
                 $this->send('PRIVMSG ' . $channel . ' :' . $msg);
             }
         } else {
-            self::send('PRIVMSG ' . $channel . ' :' . $message);
+            $this->send('PRIVMSG ' . $channel . ' :' . $message);
         }
     }
 
@@ -685,7 +685,7 @@ class LocalBot {
         if (is_array($message)) {
             foreach ($message as $msg) {
                 $pm = 'NOTICE ' . $channel . ' :' . $msg;
-                self::send($pm);
+                $this->send($pm);
             }
         } else {
             $pm = 'NOTICE ' . $channel . ' :' . $message;
