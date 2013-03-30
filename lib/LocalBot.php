@@ -59,7 +59,7 @@ class LocalBot {
     /**
      * The current message buffer.
      */
-    private static $buffer;
+    private $buffer;
     
     /**
      * Constructs a new bot with the given configuration.
@@ -161,22 +161,22 @@ class LocalBot {
 
         $i = 0;
         while (!feof($this->connection)) {
-            self::$buffer['raw'] = trim(fgets($this->connection, 4096));
+            $this->buffer['raw'] = trim(fgets($this->connection, 4096));
 
-            self::output(date("[d/m @ H:i:s]") . "<- " . self::$buffer['raw'] 
+            self::output(date("[d/m @ H:i:s]") . "<- " . $this->buffer['raw'] 
                     . "");
             if (strpos(
-                    self::$buffer['raw'], 'Nickname is already in use.'
+                    $this->buffer['raw'], 'Nickname is already in use.'
                 ) !== FALSE
                 || strpos(
-                    self::$buffer['raw'],
+                    $this->buffer['raw'],
                     'Services reserved nickname: Registered nickname.'
                 ) !== FALSE) {
                 $i++;
                 $this->runtime['nick'] = $this->config['nick'] . "-" . $i;
                 $this->send("NICK " . $this->runtime['nick']);
             } else {
-                if (strpos(LocalBot::$buffer['raw'], '376') !== FALSE) {
+                if (strpos($this->buffer['raw'], '376') !== FALSE) {
                     if (isset($this->config['nickserv_pass']) 
                             && $this->config['nickserv_pass'] != '')
                         $this->send("PRIVMSG NickServ :IDENTIFY " 
@@ -224,10 +224,10 @@ class LocalBot {
         socket_set_blocking($this->connection, false);
         while (!feof($this->connection)) {
             usleep($this->config['kernel_tick']);
-            self::$buffer['raw'] = trim(fgets($this->connection, 4096));
+            $this->buffer['raw'] = trim(fgets($this->connection, 4096));
 
             // If all is quiet, proceed once per second. (letting modules do timed events)
-            if (strlen(self::$buffer['raw']) <= 0) {
+            if (strlen($this->buffer['raw']) <= 0) {
                 if ($t == time())
                     continue;
             }
@@ -235,28 +235,28 @@ class LocalBot {
             $t = time();
 
             // respond to PINGs
-            if (substr(self::$buffer['raw'], 0, 6) == 'PING :') {
-                $this->send('PONG :' . substr(self::$buffer['raw'], 6));
+            if (substr($this->buffer['raw'], 0, 6) == 'PING :') {
+                $this->send('PONG :' . substr($this->buffer['raw'], 6));
                 continue;
             }
 
             // make sense of the buffer
             $this->parseBuffer();
 
-            if (self::$buffer['0'] != '') {
-                if (!isset(self::$buffer['channel']))
-                    self::$buffer['channel'] = "";
-                $c = str_replace(":", "", self::$buffer['channel']);
-                if (strcmp(self::$buffer['channel'], $c) == 0 
-                        && strpos(self::$buffer['channel'], ':') !== true 
-                        && isset(self::$buffer['text'])) {
+            if ($this->buffer['0'] != '') {
+                if (!isset($this->buffer['channel']))
+                    $this->buffer['channel'] = "";
+                $c = str_replace(":", "", $this->buffer['channel']);
+                if (strcmp($this->buffer['channel'], $c) == 0 
+                        && strpos($this->buffer['channel'], ':') !== true 
+                        && isset($this->buffer['text'])) {
                     $this->output(date("[d/m @ H:i:s]") . " [" . $c . "] " 
-                            . self::$buffer['text']);
-                } elseif (isset(self::$buffer['text'])) {
+                            . $this->buffer['text']);
+                } elseif (isset($this->buffer['text'])) {
                     $this->output(date("[d/m @ H:i:s]") . " (" 
-                            . self::$buffer['channel'] . ") <" 
-                            . self::$buffer['username'] . "> " 
-                            . self::$buffer['text']);
+                            . $this->buffer['channel'] . ") <" 
+                            . $this->buffer['username'] . "> " 
+                            . $this->buffer['text']);
                 }
             }
             // now process any commands issued to the bot
@@ -269,7 +269,7 @@ class LocalBot {
      *
      */
     function process() {
-        $buff = & self::$buffer;
+        $buff = & $this->buffer;
         if (is_array($this->modules)) {
             foreach (array_keys($this->modules) as $moduleId) {
 		if (!is_object($this->modules[$moduleId])) {
@@ -322,7 +322,7 @@ class LocalBot {
      */
     function parseBuffer() {
         global $data; // TODO remove globals.
-        $buffer = explode(" ", self::$buffer['raw'], 4);
+        $buffer = explode(" ", $this->buffer['raw'], 4);
         if (strpos($buffer[0], "!")) {
             $buffer['username'] = substr($buffer[0], 1, strpos($buffer[0], "!") - 1);
         } else {
@@ -523,7 +523,7 @@ class LocalBot {
             if (substr($buffer['channel'], 0, 1) == ':')
                 $buffer['channel'] = substr($buffer['channel'], 1);
         }
-        self::$buffer = $buffer;
+        $this->buffer = $buffer;
     }
 
     function handleMode($channel, $modes, $recv) {
@@ -660,7 +660,7 @@ class LocalBot {
      * @param string Where to say it.
      */
     public function pm($message, $channel = '') {
-        $channel = ($channel == "") ? self::$buffer['channel'] : $channel;
+        $channel = ($channel == "") ? $this->buffer['channel'] : $channel;
         
         if (is_array($message)) {
             foreach ($message as $msg) {
@@ -679,7 +679,7 @@ class LocalBot {
      */
     public function notice($message, $channel = "") {
         // If a channel was defined, use it, else use the channel the command came from.
-        $channel = ($channel == "") ? self::$buffer['channel'] : $channel;
+        $channel = ($channel == "") ? $this->buffer['channel'] : $channel;
         if (is_array($message)) {
             foreach ($message as $msg) {
                 $pm = 'NOTICE ' . $channel . ' :' . $msg;
@@ -754,7 +754,7 @@ class LocalBot {
      * @return string 
      */
     function getUsername() {
-        return self::$buffer['username'];
+        return $this->buffer['username'];
     }
 
     /**
