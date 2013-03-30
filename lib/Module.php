@@ -821,21 +821,31 @@ abstract class module {
         return false;
     }
 
-//### Finishers
-    /** DEPRECIATED in localbot 3.38a DO NOT USE - LEGACY from 2008
-      @access private
-      @param string A handle botzilla knows
-      @param mixed data
+    /**
+     * Adds a return for LocalBot to process (for botzilla compatibility).
+     * 
+     * @param   string          $type
+     * @param   string|array    $data
      */
     function addReturn($type, $data) {
-        LocalBot::taint('addReturn',get_class($this));
-        if (!is_array($this->md_ret))
+        // This is not part of LocalBot Core, taint localbot.
+        LocalBot::taint('addReturn', get_class($this));
+
+        if (!is_array($this->md_ret)) {
             $this->md_ret = array();
-        if (isset($this->md_ret[$type]) && !is_array($this->md_ret[$type]))
+        }
+
+        if (isset($this->md_ret[$type]) && !is_array($this->md_ret[$type])) {
             $this->md_ret[$type] = array();
+        }
+
         array_push($this->md_ret[$type], $data);
     }
 
+    /*
+     * All opf below methods are DEPRECIATED and will not be supported.
+     */
+    
     function ignore($what, $duration=false, $reason=false) {
         global $localbot;
         if (!isset($reason))
