@@ -30,7 +30,6 @@ define('LOG_FILE', LOG_PATH . 'general.log');
 require_once(LB_LIB_PATH . 'Module.php');
 require_once(LB_LIB_PATH . 'DataStore.php');
 require_once(LB_LIB_PATH . 'FileStorage.class.php');
-require_once(LB_LIB_PATH . 'DataProvider.class.php');
 
 class LocalBot {
     /**
@@ -88,7 +87,6 @@ class LocalBot {
             set_error_handler(array(self, 'handleError'));
         }
 
-        $this->runtimeaprovider = new DataProvider();
         $this->setBotName($this->config['nick']);
         $this->loadOpers();
         $fs = new FileStorage($this->config['pid_file'], FS_WRITE);
