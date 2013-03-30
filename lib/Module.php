@@ -126,7 +126,7 @@ abstract class module {
             $to = $this->getOrigin();
 	}
         
-        $this->pm($message, $to);
+        $this->localbot->pm($message, $to);
     }
     
     /**
