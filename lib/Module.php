@@ -40,7 +40,7 @@ abstract class module {
      * 
      * @return array
      */
-    function listen($buffer = array()) {
+    function listen($buffer = array(), $access = true) {
         $this->md_buffer = $buffer;
         $this->md_ret = false;
 
