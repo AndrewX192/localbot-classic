@@ -25,7 +25,7 @@ abstract class module {
     private $localbot;
     
     /**
-     * Constructs a module.s
+     * Constructs a module.
      * 
      * @param LocalBot $localbot
      */
