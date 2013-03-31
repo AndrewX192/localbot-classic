@@ -79,6 +79,11 @@ abstract class module {
                     . " will try late-startup.\033[0m", get_class($this));
             return false;
         }
+
+        if (NULL === $this->localbot) {
+            $this->localbot("LocalBot instance undefined on module. Module cannot operate.");
+        }
+
         return true;
     }
 
