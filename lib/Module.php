@@ -34,6 +34,15 @@ abstract class module {
     }
 
     /**
+     * Sets the instance of LocalBot.
+     *
+     * @param LocalBot $localbot
+     */
+    public function setLocalBot(LocalBot $localbot) {
+        $this->localbot = $localbot;
+    }
+
+    /**
      * Called when a module should process an event.
      * 
      * @param  array $buffer

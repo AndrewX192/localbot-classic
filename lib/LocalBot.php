@@ -62,7 +62,12 @@ class LocalBot {
      * The current message buffer.
      */
     private $buffer;
-    
+
+    /**
+     * An array of modules.
+     */
+    private $modules = array();    
+
     /**
      * Constructs a new bot with the given configuration.
      *
@@ -821,16 +826,17 @@ class LocalBot {
       @return boolean load success
      */
     function addmodule($z, $params = false) {
-        /**if (isset($this->modules) && !is_array($this->modules)) {
-            $this->modules = array();
-	}**/
+        $file = MD_SRC_PATH . $z;
 
-        $f = MD_SRC_PATH . $z;
-        if ($cls = $this->getmoduleClassName($f)) {
-            require_once($f);
-            eval(" \$a = new $cls(\$this);");
-            $this->modules[$cls] = $a;
+        if ($cls = $this->getmoduleClassName($file)) {
+            require_once($file);
+
+            eval(" \$module = new $cls(\$this);");
+            $module->=setLocalBot($this);
+
+            $this->modules[$cls] = $module;
             $this->modules[$cls]->setLogChan($this->config['logchan']);
+
             if ($params['cron']) {
                 $this->modules[$cls]->addCron($params['cron']);
 	    }
@@ -839,10 +845,10 @@ class LocalBot {
             
             return true;
         }
-        else {
-            $this->syslog("$cls $f not a class");
-            return false;
-        }
+
+        $this->syslog("$cls $file not a class");
+
+        return false;
     }
 
     /**
