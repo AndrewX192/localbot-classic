@@ -23,13 +23,13 @@ define('MD_SRC_PATH', LB_PATH . 'modules/');
 define('PERM_DATA', LB_PATH . 'var/');
 
 // log directory and file
-define('LOG_PATH',  PERM_DATA . 'log/');
+define('LOG_PATH', PERM_DATA . 'log/');
 define('LOG_FILE', LOG_PATH . 'general.log');
 
 // Core Libraries.
-require_once(LB_LIB_PATH . 'Module.php');
-require_once(LB_LIB_PATH . 'DataStore.php');
-require_once(LB_LIB_PATH . 'FileStorage.class.php');
+require_once LB_LIB_PATH . 'DataStore.php';
+require_once LB_LIB_PATH . 'FileStorage.class.php';
+require_once LB_LIB_PATH . 'Module.php';
 
 set_include_path(get_include_path() . PATH_SEPARATOR . LB_LIB_PATH);
 
