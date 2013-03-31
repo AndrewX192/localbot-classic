@@ -154,7 +154,7 @@ class LocalBot {
                     . $this->config['port']);
             return false;
         }
-        echo("[LocalBot: Connected. Now logging in..]\n.");
+        $this->output("[LocalBot: Connected. Now logging in..]");
         $this->send("USER " . $this->config['nick'] . " " 
                 . $this->config['hostname'] . " " . $this->config['servername'] 
                 . " :" . $this->config['realname']);
@@ -165,7 +165,7 @@ class LocalBot {
         while (!feof($this->connection)) {
             $this->buffer['raw'] = trim(fgets($this->connection, 4096));
 
-            self::output(date("[d/m @ H:i:s]") . "<- " . $this->buffer['raw'] 
+            $this->output(date("[d/m @ H:i:s]") . "<- " . $this->buffer['raw'] 
                     . "");
             if (strpos(
                     $this->buffer['raw'], 'Nickname is already in use.'
@@ -710,7 +710,7 @@ class LocalBot {
 
         // Don't print PING or PONG messages.
         if (strpos($line, 'PONG') === FALSE && strpos($line, 'PING') === FALSE) {
-            self::log($line, LOG_FILE);
+            $this->log($line, LOG_FILE);
 	}
     }
 
@@ -745,7 +745,7 @@ class LocalBot {
     public function send($command) {
         fputs($this->connection, $command . "\n\r");
 
-        self::output(date("[d/m @ H:i:s]") . "-> " . $command);
+        $this->output(date("[d/m @ H:i:s]") . "-> " . $command);
     }
 
     /**
