@@ -857,7 +857,7 @@ abstract class module {
     }
 
     /*
-     * All opf below methods are DEPRECIATED and will not be supported.
+     * These methods are DEPRECIATED and will not be supported.
      */
     
     function ignore($what, $duration=false, $reason=false) {
