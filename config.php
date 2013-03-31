@@ -14,14 +14,7 @@ $config = array(
      * Remember that order is important.
      */
     'modules' => array(
-        'botop.class.php',
-        'corecmd.class.php',
-        'channelop.class.php',
-        'ctcpreply.class.php',
         'helpsys.class.php',
-        'coresys.class.php',
-        'flatfile.class.php',
-        'managementd.class.php'
     ),
     /* Default wait in between commands (in nano seconds)
      * Do NOT change this unless you know what you are doing!
@@ -96,4 +89,4 @@ $config = array(
     'flood_commands' => '5', // How many commands can they run in the time frame defined above?
 );
 /* * You must comment the next line or LocalBot wont start.	Just put // infront of it, or delete it. * */
-//      die("Wait! What are you doing? I think you forgot something!\nRemove line ".__LINE__." in config.php to start the bot\n");
+      die("Wait! What are you doing? I think you forgot something!\nRemove line " . __LINE__ . " in config.php to start the bot\n");
