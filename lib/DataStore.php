@@ -21,8 +21,14 @@ class DataStore {
 
     /**
      * Adds an item to the datastore.
+     *
+     * @throws Exception if the item exists.
      */
     function addItem($name, $data) {
+        if (array_key_exists($this->datastore['data'])) {
+            throw new Exception("Item already exists", 400);
+        }
+
         $this->datastore['data'][$name] = array($data, time());
     }
 
