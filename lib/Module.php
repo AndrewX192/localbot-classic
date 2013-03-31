@@ -858,35 +858,9 @@ abstract class module {
 
     /*
      * These methods are DEPRECIATED and will not be supported.
-     */
-    
-    function ignore($what, $duration=false, $reason=false) {
-        global $localbot;
-        if (!isset($reason))
-            $reason = "User has been ignored from " . $this->getBotName();
-        if (!isset($duration))
-            $duration = 86400;
-        $localbot->addIgnore($what, $duration, $reason);
-    }
-
+     */    
     // DEPRECIATED In 3.38b
 
-    function setLogChan($t) {
-        global $localbot;
-        //$localbot->dat['logchan'] =$t;
-    }
-
-    /** @todo REWRITE In 3.38b * */
-    function getLogChan() {
-        global $localbot;
-        return($localbot->dat['logchan']);
-    }
-
-    function logChan($msg) {
-        global $localbot;
-        LocalBot::pm($msg, $localbot->dat['logchan']);
-    }
-    
     function m_finish() {
         return $this->md_ret;
     }
