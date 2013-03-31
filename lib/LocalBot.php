@@ -51,6 +51,9 @@ class LocalBot {
 	'logging'      => false,
         'reconnect'    => true,
         'initializing' => true,
+        'logger'       => array(
+            'files'         => array(),
+        ),
     );
     
     /**
@@ -103,6 +106,19 @@ class LocalBot {
             pcntl_signal(SIGUSR2, array(self, 'handleSig'));
             set_error_handler(array($this, 'handleError'));
         }
+
+        if ($this->runtime['logging']) {
+            // FileStorage is messy, work around it.
+            if (!file_exists(LOG_FILE)) {
+                $this->runtime['logging'] = false;
+
+                $this->output("File " + $file + " missing, logging disabled.");
+            }
+
+            $this->runtime['logger']['files'][LOG_FILE]
+                    = new FileStorage(LOG_FILE, FS_APPEND);
+        }
+
 
         $this->setBotName($this->config['nick']);
         $this->loadOpers();
@@ -751,15 +767,7 @@ class LocalBot {
             return;
         }
 
-        // FileStorage is messy, work around it.
-        if (!file_exists($file)) {
-            $this->runtime['logging'] = false;
-            
-            $this->output("File " + $file + " missing, logging disabled.");
-        }
-
-        $fs = new FileStorage($file, FS_APPEND);
-        $fs->write($line);
+        $this->runtime['logger']['files'][$file]->write($line);
     }
 
     /**
