@@ -64,6 +64,20 @@ class LocalBot {
     private $buffer;
 
     /**
+     * An array of channels.
+     *
+     * @var array
+     */
+    private $channels = array();
+
+    /**
+     * An array of users.
+     *
+     * @var array
+     */
+    private $users = array();
+
+    /**
      * Constructs a new bot with the given configuration.
      *
      * @parm string $config The bot configuration.
@@ -528,6 +542,15 @@ class LocalBot {
         $this->buffer = $buffer;
     }
 
+    /**
+     * Updates the internal represeation of a user/channels modes.
+     *
+     * @global type $data // FIXME
+     *
+     * @param   string  $channel    where it happened.
+     * @param   string  $modes      what happened.
+     * @param   array   $recv
+     */
     function handleMode($channel, $modes, $recv) {
         global $data; // FIXME
         $add = false;
@@ -587,45 +610,45 @@ class LocalBot {
                     break;
                 case 'G':
                     if ($add)
-                        $data[$channel]['CENSORED'] = array(time(), 'YES');
+                        $data[$channel]['CENSORED'] = array(time(), true);
                     if ($remove)
-                        $data[$channel]['CENSORED'] = array(time(), 'NO');
+                        $data[$channel]['CENSORED'] = array(time(), false);
                     break;
                 case 'S':
                     if ($add)
-                        $data[$channel]['COLORSTRIP'] = array(time(), 'YES');
+                        $data[$channel]['COLORSTRIP'] = array(time(), true);
                     if ($remove)
-                        $data[$channel]['COLORSTRIP'] = array(time(), 'NO');
+                        $data[$channel]['COLORSTRIP'] = array(time(), false);
                     break;
                 case 'C':
                     if ($add)
-                        $data[$channel]['NOCHANCTCP'] = array(time(), 'YES');
+                        $data[$channel]['NOCHANCTCP'] = array(time(), true);
                     if ($remove)
-                        $data[$channel]['NOCHANCTCP'] = array(time(), 'NO');
+                        $data[$channel]['NOCHANCTCP'] = array(time(), false);
                     break;
                 case 'T':
                     if ($add)
-                        $data[$channel]['NOCHANNOTICE'] = array(time(), 'YES');
+                        $data[$channel]['NOCHANNOTICE'] = array(time(), true);
                     if ($remove)
-                        $data[$channel]['NOCHANNOTICE'] = array(time(), 'NO');
+                        $data[$channel]['NOCHANNOTICE'] = array(time(), false);
                     break;
                 case 'n':
                     if ($add)
-                        $data[$channel]['NOEXTERNALMSG'] = array(time(), 'YES');
+                        $data[$channel]['NOEXTERNALMSG'] = array(time(), true);
                     if ($remove)
-                        $data[$channel]['NOEXTERNALMSG'] = array(time(), 'NO');
+                        $data[$channel]['NOEXTERNALMSG'] = array(time(), false);
                     break;
                 case 't':
                     if ($add)
-                        $data[$channel]['PROTECTEDTOPIC'] = array(time(), 'YES');
+                        $data[$channel]['PROTECTEDTOPIC'] = array(time(), true);
                     if ($remove)
-                        $data[$channel]['PROTECTEDTOPIC'] = array(time(), 'NO');
+                        $data[$channel]['PROTECTEDTOPIC'] = array(time(), false);
                     break;
                 case 'm':
                     if ($add)
-                        $data[$channel]['MODERATED'] = array(time(), 'YES');
+                        $data[$channel]['MODERATED'] = array(time(), true);
                     if ($remove)
-                        $data[$channel]['MODERATED'] = array(time(), 'NO');
+                        $data[$channel]['MODERATED'] = array(time(), false);
                     break;
                 case 'l':
                     if ($add)
@@ -637,7 +660,7 @@ class LocalBot {
                     if ($add)
                         $data[$channel]['FLOOD'] = array(time(), $recv[0]);
                     if ($remove)
-                        $data[$channel]['FLOOD'] = array(time(), 'NO');
+                        $data[$channel]['FLOOD'] = array(time(), false);
                     break;
                 case 'k':
                     if ($add)
@@ -646,11 +669,7 @@ class LocalBot {
                         $data[$channel]['KEY'] = array(time(), '');
                     break;
                 default:
-                    if ($add)
-                    //$this->pm("Channel mode +".$mode[$i]." set (extdata: ".$recv[0] .")",$channel);
-                        if ($remove)
-                        //$this->pm("Channel mode -".$mode[$i]." set (extdata: ".$recv[0] .")",$channel);
-                            break;
+                    $this->syslog("Unknown mode change: " . $modes[$i] . " set");
             }
         }
     }
