@@ -851,11 +851,17 @@ class LocalBot {
         if ($cls = $this->getmoduleClassName($file)) {
             require_once($file);
 
+            $module = false;
+
             eval(" \$module = new $cls(\$this);");
+
+            if (!$module) {
+                return false;
+            }
+
             $module->setLocalBot($this);
 
             $this->modules[$cls] = $module;
-            $this->modules[$cls]->setLogChan($this->config['logchan']);
 
             if ($params['cron']) {
                 $this->modules[$cls]->addCron($params['cron']);
