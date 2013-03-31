@@ -727,8 +727,23 @@ abstract class module {
         $this->localbot->opers[$user]['identified'] = true;
     }
 
-    /*     * LocalBot's Help system* */
+    /**
+     * Returns an instance of a module given it's name.
+     *
+     * @param   string  $name
+     *
+     * @return  Module|boolean
+     */
+    function getModuleByName($name) {
+        return $this->localbot->getModuleByName($name);
+    }
 
+
+    /**
+     * The LocalBot Help System
+     *
+     * @deprecated since version 3.38.
+     */
     function addHelpItem($name, $data) {
         global $helpdata;
         $helpdata[$name] = array($data, time());

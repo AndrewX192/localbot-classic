@@ -878,6 +878,21 @@ class LocalBot {
     }
 
     /**
+     * Returns an instance of a module given it's name.
+     *
+     * @param   string  $name
+     *
+     * @return  Module|boolean
+     */
+    public function getModuleByName($name) {
+        if (array_key_exists($name, $this->modules)) {
+            return $this->modules[$name];
+        }
+
+        return false;
+    }
+
+    /**
      * Removes a module from LocalBot.
      * 
      * @param   string  $module
