@@ -64,11 +64,6 @@ class LocalBot {
     private $buffer;
 
     /**
-     * An array of modules.
-     */
-    private $modules = array();    
-
-    /**
      * Constructs a new bot with the given configuration.
      *
      * @parm string $config The bot configuration.
@@ -832,7 +827,7 @@ class LocalBot {
             require_once($file);
 
             eval(" \$module = new $cls(\$this);");
-            $module->=setLocalBot($this);
+            $module->setLocalBot($this);
 
             $this->modules[$cls] = $module;
             $this->modules[$cls]->setLogChan($this->config['logchan']);
