@@ -284,52 +284,58 @@ class LocalBot {
      * Performs an operation "cycle".
      *
      */
-    function process() {
-        $buff = & $this->buffer;
-        if (is_array($this->modules)) {
-            foreach (array_keys($this->modules) as $moduleId) {
-		if (!is_object($this->modules[$moduleId])) {
-		    $this->syslog("Problem with module $moduleId, removing...");
-		    unset($this->modules[$moduleId]);
-		    continue;
-		}
-		// Runs operations for each module
-		$response = $this->modules[$moduleId]->listen($buff);
-		
-		// Ziggi/batch compatibility system
-		if (is_array($response)) {
-		    // send any server commands (quit, kick, etc) DEPRECIATED in 3.38a
-		    if (isset($response['md_send']) && is_array($response['md_send'])) {
-			foreach ($response['md_send'] as $e)
-			    $this->send($e);
-		    }
-		    if (isset($response['pm']) && is_array($response['pm'])) {
-			foreach ($response['pm'] as $pm) {
-			    if (is_array($pm)) {
-				$to = ($pm[1] == false ? $channel : $pm[1]);
-				$this->pm($pm[0], $to);
-			    }
-			    else {
-				$this->pm($pm, $response['channel']);
-			    }
-			}
-		    }
-		    if (isset($response['notice']) && is_array($response['notice'])) {
-			foreach ($response['notice'] as $notice) {
-			    if (is_array($notice)) {
-				$to = ($notice[1] == false ? $channel : $notice[1]);
-				$this->notice($notice[0], $to);
-			    }
-			    else {
-				$this->notice($notice, $response['channel']);
-			    }
-			}
-		    }
-		}
-            }
-            unset($this->last_invcommand);
-            unset($this->last_vcommand);
+    protected function process() {
+        $buffer = & $this->buffer;
+        
+        if (!is_array($this->modules)) {
+            return false;
         }
+        
+        foreach (array_keys($this->modules) as $moduleId) {
+            if (!is_object($this->modules[$moduleId])) {
+                $this->syslog("Problem with module $moduleId, removing...");
+                unset ($this->modules[$moduleId]);
+                continue;
+            }
+            // Runs operations for each module
+            $response = $this->modules[$moduleId]->listen($buffer);
+
+            // Ziggi/batch compatibility system
+            if (is_array($response)) {
+                // send any server commands (quit, kick, etc) DEPRECIATED in 3.38a
+                if (isset($response['md_send']) && is_array($response['md_send'])) {
+                    $this->taint('md_send', 'md_send is not supported');
+                    foreach ($response['md_send'] as $command) {
+                        $this->send($command);
+                    }
+                }
+
+                if (isset($response['pm']) && is_array($response['pm'])) {
+                    foreach ($response['pm'] as $pm) {
+                        if (is_array($pm)) {
+                            $to = ($pm[1] == false ? $channel : $pm[1]);
+                            $this->pm($pm[0], $to);
+                        }
+                        else {
+                            $this->pm($pm, $response['channel']);
+                        }
+                    }
+                }
+                if (isset($response['notice']) && is_array($response['notice'])) {
+                    foreach ($response['notice'] as $notice) {
+                        if (is_array($notice)) {
+                            $to = ($notice[1] == false ? $channel : $notice[1]);
+                            $this->notice($notice[0], $to);
+                        }
+                        else {
+                            $this->notice($notice, $response['channel']);
+                        }
+                    }
+                }
+            }
+        }
+        unset($this->last_invcommand);
+        unset($this->last_vcommand);
     }
 
     /**
