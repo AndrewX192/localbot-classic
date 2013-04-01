@@ -81,7 +81,7 @@ $config = array(
     /** LocalBot has to store the process id in a file, if you use the start script then be sure this is correct
       If its not basic features like bot restart wont work.
      * */
-    'pid_file' => 'localbot.pid',
+    'pid_file' => 'var/localbot.pid',
     /** LocalBot offers built in flood control against abusive users.
       If you wish you can disable this feature, but We recommend you keep it enabled.* */
     'flood_reset' => '8', // How many seconds must the user wait when ignored before they can use commands again

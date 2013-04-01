@@ -2,7 +2,7 @@
 
 # LocalBot startup script.
 
-PID_FILE="localbot.pid"
+PID_FILE="var/localbot.pid"
 
 if [ "$1" = "start" ] ; then
 	echo "Starting LocalBot"
