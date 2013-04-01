@@ -13,9 +13,9 @@ if [ "$1" = "start" ] ; then
 		echo "Possible error encountered (LocalBot did not start)"
 		echo "====================================================="
 		echo "Check above for possible errors, and this output of  "
-		echo "logs/general.log.
+		echo "var/log/general.log.                                 "
 		echo "====================================================="
-		tail -n 5 logs/general.log
+		tail -n 5 var/log/general.log
 		if [ -r $PID_BACKUP ] ; then
 			mv -f $PID_BACKUP $PID_FILE
 		fi
@@ -29,10 +29,10 @@ elif [ "$1" = "rehash" ]; then
 elif [ "$1" = "restart" ]; then
 	echo "Restarting LocalBot"
 	kill `cat $PID_FILE`
-	sleep 2;
+	sleep 2
         php localbot.php > /dev/null &
 elif [ "$1" = "debug" ]; then
         echo "Starting debug console"
-        sleep 2;
+        sleep 2
         php localbot.php 
-fi;
+fi
