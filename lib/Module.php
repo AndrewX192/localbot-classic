@@ -25,6 +25,13 @@ abstract class module {
     private $localbot;
     
     /**
+     * The LocalBot configuration.
+     * 
+     * @var array 
+     */
+    private $config = null;
+    
+    /**
      * Constructs a module.
      * 
      * @param LocalBot $localbot
@@ -66,16 +73,20 @@ abstract class module {
         return $this->m_finish();
     }
 
+    /**
+     * Checks the module configuration.
+     * 
+     * @return boolean
+     */
     protected function checkConfig() {
-        if (!isset($this->config) && $this->noconfig != 'NONE') {
-            if ($this->noconfig == 'NO1') {
-                $this->syslog("\033[0;31mNo suitable configuration could be " 
-                        . "found for the module; will continue with defaults."
-                        . "\033[0m", get_class($this));
-                $this->noconfig = 'NONE';
-                return;
-            }
-            $this->noconfig = 'NO1';
+        if (NULL === $this->config) {
+            $this->syslog("\033[0;31mNo suitable configuration could be " 
+                    . "found for the module; will continue with defaults."
+                    . "\033[0m", get_class($this));
+            
+            $this->config = array();
+            
+            // TODO implement this.
             $this->syslog("\033[0;31mConfiguration not yet ready; " 
                     . " will try late-startup.\033[0m", get_class($this));
             return false;
