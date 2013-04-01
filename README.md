@@ -11,7 +11,7 @@ The codebase was discontinued in 2009. In 2013, some basic refactoring was done,
 
 ## Creating Modules
 
-LocalBot provides a simple API for creating modules, and is capable of hook/event based programming. For simple scripts, it also supports Ziggi (phpbots) modules.
+LocalBot provides a simple API for creating modules, and is capable of hook/event based programming. For simple scripts, it also supports Ziggi (botzilla) modules.
 
 ## Contribute
 Fork and submit a pull request. 
