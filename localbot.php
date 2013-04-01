@@ -6,12 +6,12 @@
  * LocalBot startup script.
  */
  
-if (!file_exists('config.php')) {
-    die("The file 'config.php' is missing, please make sure it exists." . PHP_EOL);
+if (!file_exists('etc/config.php')) {
+    die("The file 'etc/config.php' is missing, please make sure it exists." . PHP_EOL);
 }
 
 $config = array();
-require_once "config.php";
+require_once "etc/config.php";
 
 if (!file_exists('lib/LocalBot.php')) {
     die("The file 'LocalBot.php' in lib/ is missing, please check your " 

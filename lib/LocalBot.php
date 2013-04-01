@@ -95,7 +95,7 @@ class LocalBot {
         $this->runtime['nick'] = $this->config['nick'];
         $this->connection = false;
         $this->runtime['logging'] = true;
-        $this->oper_file = $this->config['oper_file'];
+        $this->oper_file = 'etc/' . $this->config['oper_file'];
         $this->runtime['logchan'] = $this->config['logchan'];
         
         if ($this->config['signal_handler'] == true) {
