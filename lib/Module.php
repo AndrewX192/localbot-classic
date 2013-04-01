@@ -45,11 +45,12 @@ abstract class module {
     /**
      * Called when a module should process an event.
      * 
-     * @param  array $buffer
+     * @param  array    $buffer
+     * @param  boolean  $access
      * 
      * @return array
      */
-    function listen($buffer = array(), $access = true) {
+    public function listen($buffer = array(), $access = true) {
         $this->md_buffer = $buffer;
         $this->md_ret = false;
 
@@ -65,7 +66,7 @@ abstract class module {
         return $this->m_finish();
     }
 
-    function checkConfig() {
+    protected function checkConfig() {
         if (!isset($this->config) && $this->noconfig != 'NONE') {
             if ($this->noconfig == 'NO1') {
                 $this->syslog("\033[0;31mNo suitable configuration could be " 
@@ -91,7 +92,7 @@ abstract class module {
      * Run the methods of the plugin, for OOP extention.
      * @return true
      */
-    function runMethods() {
+    protected function runMethods() {
         return true;
     }
 
@@ -111,21 +112,28 @@ abstract class module {
 
     /**
      * Wrapper class for LocalBot->setBotName()
+     * 
      * @param string $name The name to give the bot
      */
-    function setBotName($name) {
+    protected function setBotName($name) {
         $this->setBotName($name);
     }
 
     /**
-     *
+     * Returns the bot's nick.
+     * 
      * @return string The bot's name.
      */
-    function getBotName() {
+    protected function getBotName() {
         return $this->localbot->getBotName();
     }
 
-    function isEmpty() {
+    /**
+     * Returns whether or not the message sent to the bot was empty.
+     * 
+     * @return boolean
+     */
+    protected function isEmpty() {
         return (trim($this->getText()) == '');
     }
 
@@ -135,7 +143,7 @@ abstract class module {
      * @param string	What to say.
      * @param string 	a nick or channel. When false, responds to where to request came from.
      */
-    function pm($message, $to = null) {
+    protected function pm($message, $to = null) {
         if (!$to) {
             $to = $this->getOrigin();
 	}
@@ -149,7 +157,7 @@ abstract class module {
      * @param string	What to say.
      * @param string 	a nick or channel. When false, responds to where to request came from.
      */
-    function pmAction($what, $to = null) {
+    protected function pmAction($what, $to = null) {
         if (!$to) {
             $to = $this->getOrigin();
         }
@@ -163,7 +171,7 @@ abstract class module {
      * @param   string  $what
      * @param   string $to
      */
-    function notice($what, $to = false) {
+    protected function notice($what, $to = false) {
         if (!$to) {
             $to = $this->getUser();
         }
@@ -177,7 +185,7 @@ abstract class module {
      * @param   string  $what
      * @param   string $to
      */
-    function noticeAction($what, $to = false) {
+    protected function noticeAction($what, $to = false) {
         if (!$to) {
             $to = $this->getUser();
         }
@@ -190,7 +198,7 @@ abstract class module {
      * join a channel and gather basic information about it.
      * @param string $channel the channel to join
      */
-    function join($channel) {
+    protected function join($channel) {
         $this->join($channel);
     }
 
@@ -199,25 +207,32 @@ abstract class module {
      * 
      * @param   string  $message    What to send.
      */
-    function send($message) {
+    protected function send($message) {
         $this->localbot->send($message);
     }
 
     /**
       @return string Nick of the user that said something
      */
-    function getUser() {
+    protected function getUser() {
         return $this->md_buffer['username'];
     }
 
-    function getMode() {
+    /**
+     * Returns any modes that were set.
+     * 
+     * @return string
+     */
+    protected function getMode() {
         return $this->md_buffer['modes'];
     }
 
     /**
-      @return string User&Hostname of the user
+     * Returns the user and hostname of the user that made the request.
+     * 
+     * @return string
      */
-    function getUserHost() {
+    protected function getUserHost() {
         return $this->md_buffer['user_host'];
     }
 
@@ -328,8 +343,9 @@ abstract class module {
       @return string Sent by reoccuring events. Pretty arbitrary
      */
     function getEvent() {
-        if (isset($this->md_buffer['event']))
+        if (isset($this->md_buffer['event'])) {
             return $this->md_buffer['event'];
+        }
     }
 
     /**
@@ -455,7 +471,7 @@ abstract class module {
      * 
      * @param array  $callback  The name of the callback.
      */
-    function addHook($name, $callback) {
+    protected function addHook($name, $callback) {
         global $hooks;
         $classname = get_class($this);
         $hooks[$classname][$name] = array($classname, $callback);
@@ -468,7 +484,7 @@ abstract class module {
      * 
      * @return whether or not the hook was registered.
      */
-    function deleteHook($name) {
+    protected function deleteHook($name) {
         global $hooks;
         
         if (!isset($hooks[$name])) {
@@ -772,14 +788,21 @@ abstract class module {
       @param string a function name or string. something to listen back for
       @param int number of seconds from now this event runs. (ie, 60)
       // */
-    function addTimedEvent($what, $timeTilNext, $channel=false) {
-        if (!$channel)
+    protected function addTimedEvent($what, $timeTillNext, $channel = false) {
+        if (!$channel) {
             $channel = $this->getOrigin();
+        }
 
-        if (isset($this->timedEvents) && !is_array($this->timedEvents))
+        if (isset($this->timedEvents) && !is_array($this->timedEvents)) {
             $this->timedEvents = array();
+        }
 
-        $this->timedEvents[] = array('cmd' => $what, 'time' => $timeTilNext + time(), 'channel' => $channel);
+        $this->timedEvents[] = array(
+            'cmd'       => $what,
+            'time'      => $timeTillNext + time(), 
+            'channel'   => $channel
+        );
+        
         return max(array_keys($this->timedEvents));
     }
 
@@ -788,7 +811,7 @@ abstract class module {
       @param index of event
       // */
     function clearTimedEvent($i) {
-        unset($this->timedEvents[$i]);
+        unset ($this->timedEvents[$i]);
         return true;
     }
 
