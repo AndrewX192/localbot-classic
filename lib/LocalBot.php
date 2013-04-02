@@ -263,7 +263,7 @@ class LocalBot {
                 if ($t == time())
                     continue;
             }
-
+            
             $t = time();
 
             // respond to PINGs
@@ -416,29 +416,21 @@ class LocalBot {
                     $buffer['command'] = "KICK";
                     $buffer['channel'] = $buffer[2];
                     $buffer['kicked'] = $buffer[3];
-                    unset($data[$buffer['channel']]['USERLIST'][$buffer['username']]);
+                    unset ($data[$buffer['channel']]['USERLIST'][$buffer['username']]);
                     $kicked = explode(' ', $buffer['kicked']);
                     $x = explode(" ", trim($buffer['kicked']), 2);
-                    $reason = $x[1];
-                    if ($kicked[0] == $this->runtime['nick'])
-                        unset($data[$buffer['channel']]);
                     if ($kicked[0] == $this->runtime['nick']) {
-                        if ($reason == ':(This channel has been closed)') {
-                            $this->pm("CHANSERV:CLOSE " . $buffer['channel'], $this->runtime['logchan']);
-                            return;
-                        } else {
-                            $this->join($buffer['channel']);
-                            $this->pm("Please do not kick " . $this->runtime['nick'] . " from the channel; Instead type /msg " . $this->runtime['nick'] . " Unassign " . $buffer['channel'], $buffer['channel']);
-                        }
+                        unset ($data[$buffer['channel']]);
                     }
                     break;
                 case "PART":
                     $buffer['text'] = "*PARTS: " . $buffer['username'] . " ( " . $buffer['user_host'] . " )";
                     $buffer['command'] = "PART";
                     $buffer['channel'] = $buffer[2];
-                    if ($buffer['username'] == $this->runtime['nick'])
-                        unset($data[$buffer['channel']]);
-                    unset($data[$buffer['channel']]['USERLIST'][$buffer['username']]);
+                    if ($buffer['username'] == $this->runtime['nick']) {
+                        unset ($data[$buffer['channel']]);
+                    }
+                    unset ($data[$buffer['channel']]['USERLIST'][$buffer['username']]);
                     break;
                 case "352":
                     $b = $buffer[3];
@@ -558,8 +550,9 @@ class LocalBot {
                     break;
             }
         if (isset($buffer['channel'])) {
-            if (substr($buffer['channel'], 0, 1) == ':')
+            if (substr($buffer['channel'], 0, 1) == ':') {
                 $buffer['channel'] = substr($buffer['channel'], 1);
+            }
         }
         $this->buffer = $buffer;
     }
